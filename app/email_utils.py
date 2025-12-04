@@ -6,7 +6,6 @@ import qrcode
 import base64
 from io import BytesIO
 from datetime import datetime
-from icalendar import Calendar, Event as ICalEvent
 
 
 def _ensure_ticket_qr(ticket: Ticket) -> None:
