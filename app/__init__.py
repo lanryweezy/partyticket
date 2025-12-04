@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_mail import Mail
 from authlib.integrations.flask_client import OAuth
 from config import config
 import os
@@ -14,6 +15,7 @@ migrate = Migrate()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
+mail = Mail()
 oauth = OAuth()
 
 def create_app(config_name=None):
@@ -28,6 +30,7 @@ def create_app(config_name=None):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    mail.init_app(app)
     oauth.init_app(app)
     
     # Register OAuth providers if configured

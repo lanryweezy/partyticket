@@ -28,6 +28,17 @@ class Config:
     FLUTTERWAVE_PUBLIC_KEY = os.environ.get('FLUTTERWAVE_PUBLIC_KEY') or 'FLWPUBK-your_flutterwave_public_key'
     FLUTTERWAVE_SECRET_KEY = os.environ.get('FLUTTERWAVE_SECRET_KEY') or 'FLWSECK-your_flutterwave_secret_key'
     
+    # Email (ticket confirmation, notifications)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', MAIL_USERNAME)
+    
+    # Platform fee percentage (our share from each paid ticket)
+    PLATFORM_FEE_PERCENT = float(os.environ.get('PLATFORM_FEE_PERCENT', 2.5))
+    
     # Pagination
     POSTS_PER_PAGE = 10
     EVENTS_PER_PAGE = 20

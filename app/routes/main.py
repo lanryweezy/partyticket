@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from app import db
 from app.models import Event, Ticket, Invitation, BlogPost, User
+from app.email_utils import send_ticket_confirmation_email
 from app.forms import EventForm, TicketForm, InvitationForm, BlogPostForm
 import qrcode
 import base64
@@ -95,27 +96,32 @@ def buy_tickets(event_id):
         
         try:
             # Create tickets
-            for i in range(quantity):
+            tickets = []
+            for _ in range(quantity):
                 ticket = Ticket(
                     event_id=event.id,
                     user_id=current_user.id,
                     amount_paid=event.price
                 )
                 db.session.add(ticket)
+                tickets.append(ticket)
             
-            # Update organizer earnings
+            # Update organizer earnings (platform fee is visual only for now)
             organizer = User.query.get(event.organizer_id)
             if organizer:
                 organizer.earnings += total_amount
             
             db.session.commit()
+
+            # Send confirmation email with QR codes
+            send_ticket_confirmation_email(current_user, event, tickets)
         except Exception as e:
             db.session.rollback()
             flash('An error occurred while processing your purchase. Please try again.', 'danger')
-            app.logger.error(f'Error purchasing tickets: {str(e)}')
+            current_app.logger.error(f'Error purchasing tickets: {str(e)}')
             return render_template('buy_tickets.html', event=event, form=form)
         
-        flash(f'Successfully purchased {quantity} ticket(s) for {event.name}!', 'success')
+        flash(f'Successfully purchased {quantity} ticket(s) for {event.name}! A confirmation email has been sent to {current_user.email}.', 'success')
         return redirect(url_for('main.event_detail', event_id=event.id))
     
     return render_template('buy_tickets.html', event=event, form=form)
