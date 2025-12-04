@@ -232,18 +232,22 @@
             <h5 class="mb-0 fw-bold">Share Event</h5>
           </div>
           <div class="card-body">
-            <div class="d-flex justify-content-around mb-3">
+            <div class="d-flex flex-wrap justify-content-around gap-2 mb-3">
+              <!-- Share on Facebook -->
               <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url|urlencode }}" target="_blank" class="btn btn-outline-primary">
-                <i class="bi bi-facebook"></i>
+                <i class="bi bi-facebook me-1"></i>Facebook
               </a>
+              <!-- Share on Google (Gmail) -->
+              <a href="https://mail.google.com/mail/?view=cm&su=Check out this event: {{ event.name|urlencode }}&body=I thought you might be interested in this event: {{ request.url|urlencode }}&tf=1" target="_blank" class="btn btn-outline-danger">
+                <i class="bi bi-google me-1"></i>Google
+              </a>
+              <!-- Share on Twitter/X -->
               <a href="https://twitter.com/intent/tweet?url={{ request.url|urlencode }}&text=Check out this event: {{ event.name|urlencode }}" target="_blank" class="btn btn-outline-info">
-                <i class="bi bi-twitter"></i>
+                <i class="bi bi-twitter me-1"></i>Twitter
               </a>
-              <a href="mailto:?subject=Check out this event: {{ event.name|urlencode }}&body=I thought you might be interested in this event: {{ request.url|urlencode }}" class="btn btn-outline-danger">
-                <i class="bi bi-envelope"></i>
-              </a>
+              <!-- Share on WhatsApp -->
               <a href="https://wa.me/?text=Check out this event: {{ event.name|urlencode }} {{ request.url|urlencode }}" target="_blank" class="btn btn-outline-success">
-                <i class="bi bi-whatsapp"></i>
+                <i class="bi bi-whatsapp me-1"></i>WhatsApp
               </a>
             </div>
             <div class="input-group">
