@@ -12,6 +12,12 @@ class Config:
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_ECHO = False
     
+    # OAuth (Social Login)
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+    FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID')
+    FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET')
+    
     # Security
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = 3600

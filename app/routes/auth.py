@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from app import db
+from app import db, oauth
 from app.models import User
 from app.forms import RegistrationForm, LoginForm
+import secrets
 
 auth = Blueprint('auth', __name__)
 
@@ -80,3 +81,124 @@ def logout():
     """User logout route."""
     logout_user()
     return redirect(url_for('main.home'))
+
+
+@auth.route('/login/google')
+def login_google():
+    """Redirect user to Google for authentication."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+    
+    if not current_app.config.get('GOOGLE_CLIENT_ID') or not current_app.config.get('GOOGLE_CLIENT_SECRET'):
+        flash('Google login is not configured.', 'warning')
+        return redirect(url_for('auth.login'))
+    
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@auth.route('/auth/google/callback')
+def google_callback():
+    """Handle Google OAuth callback."""
+    try:
+        token = oauth.google.authorize_access_token()
+        user_info = oauth.google.parse_id_token(token)
+        if not user_info:
+            # Fallback if parse_id_token is not available
+            resp = oauth.google.get('userinfo')
+            user_info = resp.json()
+        
+        email = user_info.get('email')
+        name = user_info.get('name') or email.split('@')[0]
+        
+        if not email:
+            flash('Unable to get email from Google account.', 'danger')
+            return redirect(url_for('auth.login'))
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Create a new user with a random password
+            username = name.replace(' ', '').lower()
+            # Ensure username uniqueness
+            base_username = username
+            counter = 1
+            while User.query.filter_by(username=username).first():
+                username = f"{base_username}{counter}"
+                counter += 1
+            
+            user = User(
+                username=username,
+                email=email
+            )
+            user.set_password(secrets.token_hex(16))
+            db.session.add(user)
+            db.session.commit()
+        
+        login_user(user, remember=True)
+        flash('Logged in with Google successfully.', 'success')
+        next_page = request.args.get('next')
+        if next_page and not next_page.startswith('/'):
+            next_page = None
+        return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
+    except Exception as e:
+        current_app.logger.error(f'Google login error: {str(e)}')
+        flash('An error occurred during Google login. Please try again.', 'danger')
+        return redirect(url_for('auth.login'))
+
+
+@auth.route('/login/facebook')
+def login_facebook():
+    """Redirect user to Facebook for authentication."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+    
+    if not current_app.config.get('FACEBOOK_CLIENT_ID') or not current_app.config.get('FACEBOOK_CLIENT_SECRET'):
+        flash('Facebook login is not configured.', 'warning')
+        return redirect(url_for('auth.login'))
+    
+    redirect_uri = url_for('auth.facebook_callback', _external=True)
+    return oauth.facebook.authorize_redirect(redirect_uri)
+
+
+@auth.route('/auth/facebook/callback')
+def facebook_callback():
+    """Handle Facebook OAuth callback."""
+    try:
+        token = oauth.facebook.authorize_access_token()
+        resp = oauth.facebook.get('me?fields=id,name,email')
+        user_info = resp.json()
+        
+        email = user_info.get('email')
+        name = user_info.get('name') or (email.split('@')[0] if email else None)
+        
+        if not email:
+            flash('Unable to get email from Facebook account.', 'danger')
+            return redirect(url_for('auth.login'))
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            username = name.replace(' ', '').lower()
+            base_username = username
+            counter = 1
+            while User.query.filter_by(username=username).first():
+                username = f"{base_username}{counter}"
+                counter += 1
+            
+            user = User(
+                username=username,
+                email=email
+            )
+            user.set_password(secrets.token_hex(16))
+            db.session.add(user)
+            db.session.commit()
+        
+        login_user(user, remember=True)
+        flash('Logged in with Facebook successfully.', 'success')
+        next_page = request.args.get('next')
+        if next_page and not next_page.startswith('/'):
+            next_page = None
+        return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
+    except Exception as e:
+        current_app.logger.error(f'Facebook login error: {str(e)}')
+        flash('An error occurred during Facebook login. Please try again.', 'danger')
+        return redirect(url_for('auth.login'))
