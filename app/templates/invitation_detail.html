@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}Invitation for {{ event.name }} - PartyTicket Nigeria{% endblock %}
+{% block meta_description %}Exclusive invitation for {{ event.name }} happening on {{ event.date.strftime('%B %d, %Y') }} at {{ event.location }}. Manage your invitation and access event details.{% endblock %}
+
+{% block content %}
+<!-- Invitation Header -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Invitation</li>
+      </ol>
+    </nav>
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-5 fw-bold mb-3">Event Invitation</h1>
+        <p class="lead text-muted">Exclusive invitation for {{ event.name }}</p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary" onclick="window.print()">
+            <i class="bi bi-printer me-2"></i>Print
+          </button>
+          <button class="btn btn-primary">
+            <i class="bi bi-download me-2"></i>Download
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Invitation Details -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+              <div>
+                <h2 class="fw-bold mb-2">{{ event.name }}</h2>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar-event text-primary fs-4 me-2"></i>
+                    <div>
+                      <div class="small text-muted">Date & Time</div>
+                      <div class="fw-bold">{{ event.date.strftime('%A, %B %d, %Y at %I:%M %p') }}</div>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-geo-alt text-primary fs-4 me-2"></i>
+                    <div>
+                      <div class="small text-muted">Location</div>
+                      <div class="fw-bold">{{ event.location }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <span class="badge bg-success fs-6">Active</span>
+            </div>
+            
+            <div class="row g-4 mt-4">
+              <div class="col-md-6">
+                <h5 class="fw-bold mb-3">Invitation Details</h5>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Invitation ID</span>
+                      <span class="fw-bold">#INV-{{ invitation.id|zfill(6) }}</span>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Created By</span>
+                      <span class="fw-bold">{{ invitation.inviter.username }}</span>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Max Attendees</span>
+                      <span class="fw-bold">{{ invitation.max_attendees }}</span>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Attendees So Far</span>
+                      <span class="fw-bold">{{ invitation.attendee_count }}</span>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Remaining Slots</span>
+                      <span class="fw-bold">{{ invitation.max_attendees - invitation.attendee_count }}</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h5 class="fw-bold mb-3">Event Description</h5>
+                <p>{{ event.description[:200] }}{% if event.description|length > 200 %}...{% endif %}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0 fw-bold">QR Code Access</h5>
+          </div>
+          <div class="card-body">
+            <div class="text-center">
+              <div class="bg-light p-4 rounded mb-4 d-inline-block">
+                {% if invitation.qr_code %}
+                  <img src="data:image/png;base64,{{ invitation.qr_code }}" alt="Invitation QR Code" class="img-fluid">
+                {% else %}
+                  <div class="bg-white border border-dashed rounded d-flex align-items-center justify-content-center" style="width: 200px; height: 200px;">
+                    <i class="bi bi-qr-code text-muted fs-1"></i>
+                  </div>
+                {% endif %}
+              </div>
+              <p class="mb-0">Show this QR code at the entrance for access</p>
+              <p class="text-muted small">Each scan allows one person entry</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0 fw-bold">Invitation Summary</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Event</span>
+                  <span class="fw-bold">{{ event.name.split(' ')[0] }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Date</span>
+                  <span class="fw-bold">{{ event.date.strftime('%b %d, %Y') }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Time</span>
+                  <span class="fw-bold">{{ event.date.strftime('%I:%M %p') }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Location</span>
+                  <span class="fw-bold">{{ event.location.split(',')[0] }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Max Attendees</span>
+                  <span class="fw-bold">{{ invitation.max_attendees }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Used Slots</span>
+                  <span class="fw-bold">{{ invitation.attendee_count }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Remaining</span>
+                  <span class="fw-bold">{{ invitation.max_attendees - invitation.attendee_count }}</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header">
+            <h5 class="mb-0 fw-bold">Share This Invitation</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-around mb-3">
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url|urlencode }}" target="_blank" class="btn btn-outline-primary btn-lg rounded-circle">
+                <i class="bi bi-facebook"></i>
+              </a>
+              <a href="https://twitter.com/intent/tweet?url={{ request.url|urlencode }}&text=Check out this invitation: {{ event.name|urlencode }}" target="_blank" class="btn btn-outline-info btn-lg rounded-circle">
+                <i class="bi bi-twitter"></i>
+              </a>
+              <a href="mailto:?subject=Check out this invitation: {{ event.name|urlencode }}&body=I thought you might be interested in this invitation: {{ request.url|urlencode }}" class="btn btn-outline-danger btn-lg rounded-circle">
+                <i class="bi bi-envelope"></i>
+              </a>
+              <a href="https://wa.me/?text=Check out this invitation: {{ event.name|urlencode }} {{ request.url|urlencode }}" target="_blank" class="btn btn-outline-success btn-lg rounded-circle">
+                <i class="bi bi-whatsapp"></i>
+              </a>
+            </div>
+            <div class="input-group">
+              <input type="text" class="form-control" value="{{ request.url }}" readonly>
+              <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard(this)">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Instructions -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="text-center mb-5">
+          <h3 class="fw-bold mb-3">How to Use This Invitation</h3>
+          <p class="text-muted">Follow these simple steps to ensure smooth entry to the event</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="text-center">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                <i class="bi bi-printer text-primary fs-3"></i>
+              </div>
+              <h5 class="fw-bold mb-2">Print or Save</h5>
+              <p class="text-muted small mb-0">Print this invitation or save it to your phone for easy access</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center">
+              <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                <i class="bi bi-qr-code-scan text-success fs-3"></i>
+              </div>
+              <h5 class="fw-bold mb-2">Show QR Code</h5>
+              <p class="text-muted small mb-0">Present the QR code at the entrance for quick scanning</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center">
+              <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                <i class="bi bi-person-check text-warning fs-3"></i>
+              </div>
+              <h5 class="fw-bold mb-2">Bring ID</h5>
+              <p class="text-muted small mb-0">Bring a valid ID for verification at the entrance</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function copyToClipboard(button) {
+  const input = button.previousElementSibling;
+  input.select();
+  document.execCommand('copy');
+  button.textContent = 'Copied!';
+  setTimeout(() => {
+    button.textContent = 'Copy';
+  }, 2000);
+}
+
+function printInvitation() {
+  window.print();
+}
+</script>
+
+<style>
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-section, .print-section * {
+    visibility: visible;
+  }
+  .print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}PartyTicket Nigeria - Discover & Host Amazing Events{% endblock %}
+{% block meta_description %}Find and book tickets for parties, concerts, festivals, and gatherings across Nigeria. Create your own events and sell tickets online with our easy-to-use platform.{% endblock %}
+{% block meta_keywords %}events nigeria, party tickets, concert tickets, event booking, ticketing platform, nigeria events, party planning, event management{% endblock %}
+{% block og_title %}PartyTicket Nigeria - Discover & Host Amazing Events{% endblock %}
+{% block og_description %}Find and book tickets for parties, concerts, festivals, and gatherings across Nigeria. Create your own events and sell tickets online.{% endblock %}
+{% block twitter_title %}PartyTicket Nigeria - Discover & Host Amazing Events{% endblock %}
+{% block twitter_description %}Find and book tickets for parties, concerts, festivals, and gatherings across Nigeria. Create your own events and sell tickets online.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "PartyTicket Nigeria",
+  "url": "{{ request.url_root[:-1] }}",
+  "logo": "{{ request.url_root[:-1] }}{{ url_for('static', filename='images/logo.png') }}",
+  "sameAs": [
+    "https://www.facebook.com/PartyTicketNG",
+    "https://twitter.com/PartyTicketNG",
+    "https://www.instagram.com/PartyTicketNG"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+234-800-000-0000",
+    "contactType": "Customer Service",
+    "areaServed": "NG",
+    "availableLanguage": "en"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero bg-primary text-white py-5 mb-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4">Discover & Host Amazing Events Across Nigeria</h1>
+        <p class="lead mb-4">Find parties, concerts, festivals, and gatherings near you. Create your own events and sell tickets online.</p>
+        <div class="d-flex flex-wrap gap-3">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.create_event') }}" class="btn btn-light btn-lg">
+              <i class="bi bi-calendar-plus me-2"></i>Create Your Event
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-light btn-lg">
+              <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+          {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg">
+              <i class="bi bi-person-plus me-2"></i>Get Started
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-6 mt-4 mt-lg-0">
+        <div class="position-relative">
+          <img src="{{ url_for('static', filename='images/hero-image.jpg') }}" alt="PartyTicket Nigeria Events" class="img-fluid rounded shadow-lg">
+          <div class="position-absolute bottom-0 start-0 translate-middle bg-white rounded shadow p-3 ms-5 mb-5">
+            <div class="d-flex align-items-center">
+              <div class="bg-success rounded-circle p-2 me-2">
+                <i class="bi bi-ticket-perforated text-white"></i>
+              </div>
+              <div>
+                <h6 class="mb-0">10,000+</h6>
+                <small class="text-muted">Tickets Sold</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">How PartyTicket Works</h2>
+      <p class="text-muted">Simple steps to discover, book, and host events</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+              <i class="bi bi-search text-primary fs-1"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Discover Events</h5>
+            <p class="text-muted">Browse thousands of events happening across Nigeria. Filter by category, date, and location.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+              <i class="bi bi-ticket-perforated text-success fs-1"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Book Tickets</h5>
+            <p class="text-muted">Purchase tickets securely with Paystack or Flutterwave. Get instant confirmation and digital tickets.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+              <i class="bi bi-calendar-event text-warning fs-1"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Host Events</h5>
+            <p class="text-muted">Create your own events, sell tickets, and manage attendees with our powerful event tools.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Events -->
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold">Featured Events</h2>
+      <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary">View All Events</a>
+    </div>
+    
+    <div class="row g-4 animate-stagger">
+      {% if featured_events %}
+        {% for event in featured_events[:6] %}
+        <div class="col-md-4">
+          <div class="card event-card h-100 border-0 shadow-sm overflow-hidden">
+            <div class="position-relative overflow-hidden" style="height: 220px;">
+              <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=200&q=80" class="card-img-top w-100 h-100" alt="{{ event.name }}" style="object-fit: cover;">
+              <div class="position-absolute top-0 end-0 m-3">
+                <span class="badge bg-white text-primary shadow">{{ event.category.title() if event.category else 'General' }}</span>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-primary fw-bold fs-5">₦{{ "%.2f"|format(event.price) }}</span>
+              </div>
+              <h5 class="card-title">{{ event.name }}</h5>
+              <p class="card-text text-muted small mb-3">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+              <div class="mt-auto">
+                <div class="d-flex justify-content-between align-items-center small text-muted mb-3">
+                  <span><i class="bi bi-calendar-event me-1 text-primary"></i> {{ event.date.strftime('%b %d, %Y') }}</span>
+                  <span><i class="bi bi-geo-alt me-1 text-primary"></i> {{ event.location.split(',')[0] }}</span>
+                </div>
+                <a href="{{ url_for('main.event_detail', event_id=event.id) }}" class="btn btn-primary w-100">
+                  <i class="bi bi-ticket-perforated me-2"></i>Get Tickets
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="text-center py-5">
+            <i class="bi bi-calendar-x text-muted fs-1"></i>
+            <h3 class="mt-3">No Events Found</h3>
+            <p class="text-muted">There are currently no events available. Check back later or create your own!</p>
+            <a href="{{ url_for('main.create_event') }}" class="btn btn-primary">Create Your First Event</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Event Categories -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Event Categories</h2>
+      <p class="text-muted">Find the perfect event for you</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4 col-lg-2">
+        <a href="{{ url_for('main.events_by_category', category='formal') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm text-center h-100 category-card">
+            <div class="card-body">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                <i class="bi bi-briefcase text-primary fs-3"></i>
+              </div>
+              <h6 class="fw-bold mb-0">Formal Events</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <a href="{{ url_for('main.events_by_category', category='campus') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm text-center h-100 category-card">
+            <div class="card-body">
+              <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                <i class="bi bi-mortarboard text-success fs-3"></i>
+              </div>
+              <h6 class="fw-bold mb-0">Campus Parties</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <a href="{{ url_for('main.events_by_category', category='street') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm text-center h-100 category-card">
+            <div class="card-body">
+              <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                <i class="bi bi-people text-warning fs-3"></i>
+              </div>
+              <h6 class="fw-bold mb-0">Street Parties</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <a href="{{ url_for('main.events_by_category', category='concert') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm text-center h-100 category-card">
+            <div class="card-body">
+              <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                <i class="bi bi-music-note-beamed text-danger fs-3"></i>
+              </div>
+              <h6 class="fw-bold mb-0">Concerts</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <a href="{{ url_for('main.events_by_category', category='festival') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm text-center h-100 category-card">
+            <div class="card-body">
+              <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                <i class="bi bi-flower1 text-info fs-3"></i>
+              </div>
+              <h6 class="fw-bold mb-0">Festivals</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <a href="{{ url_for('main.events') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm text-center h-100 category-card">
+            <div class="card-body">
+              <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                <i class="bi bi-three-dots text-secondary fs-3"></i>
+              </div>
+              <h6 class="fw-bold mb-0">All Events</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose PartyTicket -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Why Choose PartyTicket for Nigerian Events</h2>
+      <p class="text-muted">Designed specifically for the Nigerian event scene</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="text-center">
+          <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+            <i class="bi bi-currency-naira text-primary fs-2"></i>
+          </div>
+          <h5 class="fw-bold">Local Payments</h5>
+          <p class="text-muted">Pay and get paid in Naira with Paystack and Flutterwave integrations.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="text-center">
+          <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+            <i class="bi bi-phone text-success fs-2"></i>
+          </div>
+          <h5 class="fw-bold">Offline Support</h5>
+          <p class="text-muted">Works perfectly even with limited internet connectivity.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="text-center">
+          <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+            <i class="bi bi-shield-check text-warning fs-2"></i>
+          </div>
+          <h5 class="fw-bold">Secure Verification</h5>
+          <p class="text-muted">QR codes and student verification system.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="text-center">
+          <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+            <i class="bi bi-share text-danger fs-2"></i>
+          </div>
+          <h5 class="fw-bold">Easy Sharing</h5>
+          <p class="text-muted">Share events on WhatsApp, Twitter, and Facebook.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">What Our Users Say</h2>
+      <p class="text-muted">Hear from event organizers and attendees</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex mb-3">
+              <div class="bg-secondary rounded-circle me-3" style="width: 50px; height: 50px;"></div>
+              <div>
+                <h5 class="mb-0">Chinedu Okafor</h5>
+                <small class="text-muted">Event Organizer</small>
+              </div>
+            </div>
+            <p class="card-text">"PartyTicket helped me sell over 200 tickets for my birthday party in just two weeks. The platform is so easy to use!"</p>
+            <div class="text-warning">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex mb-3">
+              <div class="bg-secondary rounded-circle me-3" style="width: 50px; height: 50px;"></div>
+              <div>
+                <h5 class="mb-0">Amina Yusuf</h5>
+                <small class="text-muted">University Student</small>
+              </div>
+            </div>
+            <p class="card-text">"As a student, I love the campus party feature. The student verification makes it affordable for us!"</p>
+            <div class="text-warning">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex mb-3">
+              <div class="bg-secondary rounded-circle me-3" style="width: 50px; height: 50px;"></div>
+              <div>
+                <h5 class="mb-0">Temitope Adeyemi</h5>
+                <small class="text-muted">Concert Goer</small>
+              </div>
+            </div>
+            <p class="card-text">"I've attended three concerts booked through PartyTicket. The QR code system makes entry so smooth!"</p>
+            <div class="text-warning">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h3 class="fw-bold mb-2">Ready to Host Your Own Event?</h3>
+        <p class="mb-0">Create your event and start selling tickets in minutes with our easy-to-use platform.</p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+        <a href="{{ url_for('main.create_event') }}" class="btn btn-light btn-lg">
+          <i class="bi bi-calendar-plus me-2"></i>Create Event
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

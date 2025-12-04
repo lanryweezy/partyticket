@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Create Blog Post - PartyTicket Admin{% endblock %}
+{% block meta_description %}Create a new blog post for PartyTicket Nigeria. Share event planning tips, ticketing advice, and industry insights with our community.{% endblock %}
+
+{% block content %}
+<!-- Create Blog Post Header -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.admin_dashboard') }}" class="text-decoration-none">Admin Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.admin_blog') }}" class="text-decoration-none">Blog Management</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Create Post</li>
+      </ol>
+    </nav>
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-5 fw-bold mb-3">Create New Blog Post</h1>
+        <p class="lead text-muted">Share your expertise and insights with the PartyTicket community</p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <a href="{{ url_for('main.admin_blog') }}" class="btn btn-outline-primary btn-lg">
+          <i class="bi bi-arrow-left me-2"></i>Back to Blog
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Create Blog Post Form -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('main.create_blog_post') }}">
+              {{ form.hidden_tag() }}
+              
+              <div class="mb-4">
+                <label for="{{ form.title.id }}" class="form-label fw-bold">Post Title</label>
+                {{ form.title(class="form-control form-control-lg", placeholder="Enter a compelling title for your blog post") }}
+                {% if form.title.errors %}
+                  <div class="text-danger mt-1">
+                    {% for error in form.title.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="mb-4">
+                <label for="{{ form.excerpt.id }}" class="form-label fw-bold">Excerpt</label>
+                {{ form.excerpt(class="form-control", rows="3", placeholder="Brief summary of your post (150-300 characters)") }}
+                <div class="form-text">This will appear in search results and on blog listing pages</div>
+                {% if form.excerpt.errors %}
+                  <div class="text-danger mt-1">
+                    {% for error in form.excerpt.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="mb-4">
+                <label for="{{ form.slug.id }}" class="form-label fw-bold">URL Slug</label>
+                {{ form.slug(class="form-control", placeholder="seo-friendly-url-for-this-post") }}
+                <div class="form-text">This will be used in the URL for your post (e.g., partyticket.ng/blog/post/this-is-my-post)</div>
+                {% if form.slug.errors %}
+                  <div class="text-danger mt-1">
+                    {% for error in form.slug.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="mb-4">
+                <label for="{{ form.content.id }}" class="form-label fw-bold">Content</label>
+                {{ form.content(class="form-control", rows="15", placeholder="Write your blog post content here. You can use Markdown formatting.") }}
+                <div class="form-text">Include headings, lists, images, and other elements to make your post engaging</div>
+                {% if form.content.errors %}
+                  <div class="text-danger mt-1">
+                    {% for error in form.content.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mt-5">
+                <div class="form-check form-switch">
+                  {{ form.published(class="form-check-input", role="switch") }}
+                  <label class="form-check-label fw-bold" for="{{ form.published.id }}">Publish Immediately</label>
+                </div>
+                <div>
+                  <a href="{{ url_for('main.admin_blog') }}" class="btn btn-outline-secondary me-2">Cancel</a>
+                  {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0 fw-bold">Post Settings</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-4">
+              <label class="form-label fw-bold">Category</label>
+              <select class="form-select">
+                <option value="">Select a category</option>
+                <option value="event-planning">Event Planning</option>
+                <option value="ticketing">Ticketing</option>
+                <option value="campus">Campus Events</option>
+                <option value="culture">Nigerian Culture</option>
+                <option value="general">General</option>
+              </select>
+              <div class="form-text">Choose the most relevant category for your post</div>
+            </div>
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold">Featured Image</label>
+              <div class="border rounded p-3 text-center">
+                <i class="bi bi-image text-muted fs-1"></i>
+                <p class="text-muted mb-2">Upload a featured image</p>
+                <button type="button" class="btn btn-sm btn-outline-primary">Choose Image</button>
+              </div>
+              <div class="form-text">Recommended size: 1200x630 pixels</div>
+            </div>
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold">Tags</label>
+              <input type="text" class="form-control" placeholder="Add tags separated by commas">
+              <div class="form-text">Example: party, events, nigeria, planning</div>
+            </div>
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold">Reading Time</label>
+              <input type="text" class="form-control" value="5 minutes" readonly>
+              <div class="form-text">Estimated based on content length</div>
+            </div>
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold">SEO Preview</label>
+              <div class="border rounded p-3">
+                <div class="fw-bold text-primary">PartyTicket Nigeria Blog</div>
+                <div class="text-success">https://partyticket.ng/blog/post/your-post-title</div>
+                <div class="text-muted small mt-2">Your post excerpt will appear here...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">Writing Tips</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0">
+                <div class="d-flex">
+                  <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                  <div>
+                    <div class="fw-bold">Use Headings</div>
+                    <div class="small text-muted">Break up content with H2 and H3 headings</div>
+                  </div>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex">
+                  <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                  <div>
+                    <div class="fw-bold">Include Images</div>
+                    <div class="small text-muted">Add relevant visuals to break up text</div>
+                  </div>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex">
+                  <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                  <div>
+                    <div class="fw-bold">Add Lists</div>
+                    <div class="small text-muted">Use bullet points for easy scanning</div>
+                  </div>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex">
+                  <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                  <div>
+                    <div class="fw-bold">Include Calls-to-Action</div>
+                    <div class="small text-muted">Encourage readers to take action</div>
+                  </div>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex">
+                  <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                  <div>
+                    <div class="fw-bold">Proofread</div>
+                    <div class="small text-muted">Check spelling and grammar before publishing</div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

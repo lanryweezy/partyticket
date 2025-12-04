@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">Create Party Invitation</h2>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.event_id.label(class="form-label") }}
+            {{ form.event_id(class="form-control") }}
+            <div class="form-text">Enter the ID of the event you want to create invitations for</div>
+            {% if form.event_id.errors %}
+                <div class="text-danger">
+                    {% for error in form.event_id.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.max_attendees.label(class="form-label") }}
+            {{ form.max_attendees(class="form-control") }}
+            <div class="form-text">Maximum number of attendees allowed with this invitation</div>
+            {% if form.max_attendees.errors %}
+                <div class="text-danger">
+                    {% for error in form.max_attendees.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="d-grid">
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

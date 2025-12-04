@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Offline Ticket Verification</h3>
+                </div>
+                <div class="card-body">
+                    <p>This tool allows you to verify tickets offline for events with limited internet connectivity.</p>
+                    
+                    <div class="mb-3">
+                        <label for="invitationId" class="form-label">Invitation ID</label>
+                        <input type="text" class="form-control" id="invitationId" placeholder="Enter invitation ID">
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button class="btn btn-primary" id="verifyBtn">
+                            <i class="bi bi-check-circle"></i> Verify Ticket
+                        </button>
+                    </div>
+                    
+                    <div id="result" class="mt-4" style="display: none;">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Verification Result</h5>
+                                <div id="resultContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('verifyBtn').addEventListener('click', function() {
+    const invitationId = document.getElementById('invitationId').value;
+    
+    if (!invitationId) {
+        alert('Please enter an invitation ID');
+        return;
+    }
+    
+    // In a real implementation, this would check local storage or a local database
+    // For this demo, we'll simulate the verification
+    simulateVerification(invitationId);
+});
+
+function simulateVerification(invitationId) {
+    // Show loading state
+    const resultDiv = document.getElementById('result');
+    const resultContent = document.getElementById('resultContent');
+    resultDiv.style.display = 'block';
+    resultContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    
+    // Simulate API call delay
+    setTimeout(() => {
+        // For demo purposes, we'll randomly decide if the ticket is valid
+        const isValid = Math.random() > 0.3; // 70% chance of valid ticket
+        
+        if (isValid) {
+            resultContent.innerHTML = `
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle-fill"></i> Valid Ticket</h5>
+                    <p><strong>Invitation ID:</strong> ${invitationId}</p>
+                    <p><strong>Event:</strong> Sample Event Name</p>
+                    <p><strong>Date:</strong> June 15, 2023</p>
+                    <p><strong>Attendee Count:</strong> 2 of 5</p>
+                    <button class="btn btn-success" onclick="markAsScanned('${invitationId}')">
+                        <i class="bi bi-box-arrow-in-right"></i> Mark as Scanned
+                    </button>
+                </div>
+            `;
+        } else {
+            resultContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5><i class="bi bi-x-circle-fill"></i> Invalid Ticket</h5>
+                    <p>The invitation ID is invalid or has reached its attendee limit.</p>
+                </div>
+            `;
+        }
+    }, 1000);
+}
+
+function markAsScanned(invitationId) {
+    alert(`Ticket ${invitationId} marked as scanned successfully!`);
+    // In a real implementation, this would update the local database
+}
+</script>
+{% endblock %}

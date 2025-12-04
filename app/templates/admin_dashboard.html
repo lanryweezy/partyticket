@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - PartyTicket Nigeria{% endblock %}
+{% block meta_description %}Administrator dashboard for PartyTicket Nigeria. Monitor platform activity, manage users, events, and system performance.{% endblock %}
+
+{% block content %}
+<!-- Admin Dashboard Header -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-5 fw-bold mb-3">Admin Dashboard</h1>
+        <p class="lead text-muted">Monitor platform activity and manage system resources</p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="dropdown">
+          <button class="btn btn-primary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-tools me-2"></i>Admin Tools
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#"><i class="bi bi-people me-2"></i>User Management</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-event me-2"></i>Event Moderation</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-ticket-perforated me-2"></i>Ticket Verification</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up me-2"></i>Analytics Reports</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>System Settings</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Overview -->
+<section class="py-4 bg-white sticky-top shadow-sm">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-muted small">Total Users</div>
+                <div class="h4 fw-bold mb-0">{{ total_users }}</div>
+              </div>
+              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <i class="bi bi-people text-primary fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-muted small">Total Events</div>
+                <div class="h4 fw-bold mb-0">{{ total_events }}</div>
+              </div>
+              <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <i class="bi bi-calendar-event text-success fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-muted small">Total Tickets</div>
+                <div class="h4 fw-bold mb-0">{{ total_tickets }}</div>
+              </div>
+              <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <i class="bi bi-ticket-perforated text-warning fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-muted small">Total Revenue</div>
+                <div class="h4 fw-bold mb-0">₦{{ "%.2f"|format(total_tickets * 1500) }}</div>
+              </div>
+              <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <i class="bi bi-currency-naira text-info fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Activity -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="fw-bold mb-0">Recent Events</h3>
+              <a href="#" class="btn btn-outline-primary btn-sm">View All</a>
+            </div>
+          </div>
+          <div class="card-body">
+            {% if recent_events %}
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Event</th>
+                      <th>Organizer</th>
+                      <th>Date</th>
+                      <th>Category</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for event in recent_events %}
+                      <tr>
+                        <td>
+                          <div class="fw-bold">{{ event.name }}</div>
+                          <div class="small text-muted">{{ event.location.split(',')[0] }}</div>
+                        </td>
+                        <td>{{ event.organizer.username }}</td>
+                        <td>{{ event.date.strftime('%b %d, %Y') }}</td>
+                        <td>
+                          <span class="badge bg-primary">
+                            {% if event.category == 'formal' %}Formal
+                            {% elif event.category == 'campus' %}Campus
+                            {% elif event.category == 'street' %}Street
+                            {% elif event.category == 'concert' %}Concert
+                            {% elif event.category == 'festival' %}Festival
+                            {% else %}General
+                            {% endif %}
+                          </span>
+                        </td>
+                        <td>
+                          {% if event.date > now() %}
+                            <span class="badge bg-success">Upcoming</span>
+                          {% elif event.date < now() %}
+                            <span class="badge bg-secondary">Past</span>
+                          {% else %}
+                            <span class="badge bg-warning">Today</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" href="{{ url_for('main.event_detail', event_id=event.id) }}"><i class="bi bi-eye me-2"></i>View Event</a></li>
+                              <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit Event</a></li>
+                              <li><a class="dropdown-item text-warning" href="#"><i class="bi bi-exclamation-triangle me-2"></i>Flag Event</a></li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete Event</a></li>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-center py-5">
+                <i class="bi bi-calendar-x text-muted fs-1"></i>
+                <h4 class="mt-3">No Events Found</h4>
+                <p class="text-muted">There are no events in the system yet.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="fw-bold mb-0">Recent Ticket Sales</h3>
+              <a href="#" class="btn btn-outline-primary btn-sm">View All</a>
+            </div>
+          </div>
+          <div class="card-body">
+            {% if recent_tickets %}
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Ticket ID</th>
+                      <th>Event</th>
+                      <th>User</th>
+                      <th>Amount</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for ticket in recent_tickets %}
+                      <tr>
+                        <td>#TKT-{{ ticket.id|zfill(6) }}</td>
+                        <td>{{ ticket.event.name.split(' ')[0] }}</td>
+                        <td>{{ ticket.user.username }}</td>
+                        <td>₦{{ "%.2f"|format(ticket.amount_paid) }}</td>
+                        <td>{{ ticket.id|timestamp_to_date }}</td>
+                        <td>
+                          {% if ticket.is_scanned %}
+                            <span class="badge bg-success">Used</span>
+                          {% else %}
+                            <span class="badge bg-primary">Valid</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-center py-5">
+                <i class="bi bi-ticket-perforated text-muted fs-1"></i>
+                <h4 class="mt-3">No Ticket Sales</h4>
+                <p class="text-muted">There are no ticket sales recorded yet.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0 fw-bold">Platform Analytics</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3">User Growth</h6>
+              <canvas id="userGrowthChart" height="200"></canvas>
+            </div>
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3">Revenue Distribution</h6>
+              <canvas id="revenueDistributionChart" height="200"></canvas>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-3">Event Categories</h6>
+              <canvas id="eventCategoriesChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">System Status</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Database Status</span>
+                  <span class="badge bg-success">Online</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Payment Gateway</span>
+                  <span class="badge bg-success">Connected</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Email Service</span>
+                  <span class="badge bg-success">Operational</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Storage Usage</span>
+                  <span class="badge bg-warning">75%</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Last Backup</span>
+                  <span class="small text-muted">2 hours ago</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Charts Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+const userGrowthChart = new Chart(userGrowthCtx, {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [{
+      label: 'New Users',
+      data: [120, 190, 150, 220, 180, 250],
+      borderColor: '#6f42c1',
+      backgroundColor: 'rgba(111, 66, 193, 0.1)',
+      tension: 0.4,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+
+// Revenue Distribution Chart
+const revenueCtx = document.getElementById('revenueDistributionChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Tickets', 'Invitations', 'Premium Features', 'Advertising'],
+    datasets: [{
+      data: [60, 15, 15, 10],
+      backgroundColor: [
+        '#6f42c1',
+        '#20c997',
+        '#ffc107',
+        '#dc3545'
+      ]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom'
+      }
+    }
+  }
+});
+
+// Event Categories Chart
+const eventCategoriesCtx = document.getElementById('eventCategoriesChart').getContext('2d');
+const eventCategoriesChart = new Chart(eventCategoriesCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Formal', 'Campus', 'Street', 'Concert', 'Festival'],
+    datasets: [{
+      label: 'Events',
+      data: [25, 40, 30, 35, 20],
+      backgroundColor: '#6f42c1'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

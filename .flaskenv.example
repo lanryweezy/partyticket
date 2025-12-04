@@ -1,0 +1,7 @@
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=your-secret-key-change-this-in-production
+PAYSTACK_PUBLIC_KEY=pk_test_your-paystack-public-key
+PAYSTACK_SECRET_KEY=sk_test_your-paystack-secret-key
+FLUTTERWAVE_PUBLIC_KEY=FLWPUBK-your-flutterwave-public-key
+FLUTTERWAVE_SECRET_KEY=FLWSECK-your-flutterwave-secret-key

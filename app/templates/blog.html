@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Event Planning Blog - PartyTicket Nigeria{% endblock %}
+{% block meta_description %}Learn how to plan perfect parties, concerts, and events in Nigeria. Get tips on event management, ticketing, and party planning from PartyTicket experts.{% endblock %}
+
+{% block content %}
+<!-- Blog Header -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-5 fw-bold mb-3">Event Planning Blog</h1>
+        <p class="lead text-muted">Tips, tricks, and insights for planning the perfect events in Nigeria</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search and Categories -->
+<section class="py-4 bg-white sticky-top shadow-sm">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <form method="GET" action="{{ url_for('main.blog') }}">
+          <div class="input-group">
+            <input type="text" class="form-control" name="q" placeholder="Search blog posts..." value="{{ request.args.get('q', '') }}">
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{{ url_for('main.blog') }}" class="btn btn-outline-primary btn-sm {% if not request.args.get('category') %}active{% endif %}">All</a>
+          <a href="{{ url_for('main.blog') }}?category=event-planning" class="btn btn-outline-primary btn-sm {% if request.args.get('category') == 'event-planning' %}active{% endif %}">Event Planning</a>
+          <a href="{{ url_for('main.blog') }}?category=ticketing" class="btn btn-outline-primary btn-sm {% if request.args.get('category') == 'ticketing' %}active{% endif %}">Ticketing</a>
+          <a href="{{ url_for('main.blog') }}?category=campus" class="btn btn-outline-primary btn-sm {% if request.args.get('category') == 'campus' %}active{% endif %}">Campus Events</a>
+          <a href="{{ url_for('main.blog') }}?category=culture" class="btn btn-outline-primary btn-sm {% if request.args.get('category') == 'culture' %}active{% endif %}">Nigerian Culture</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Blog Posts -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        {% if posts %}
+          {% for post in posts %}
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="row g-0">
+                <div class="col-md-4">
+                  <img src="{{ post.image_url if post.image_url else 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80' }}" class="img-fluid rounded-start h-100 object-cover" alt="{{ post.title }}">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body h-100 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <span class="badge bg-primary">{{ post.category.title() if post.category else 'General' }}</span>
+                      <small class="text-muted">{{ post.date_posted.strftime('%b %d, %Y') }}</small>
+                    </div>
+                    <h3 class="card-title fw-bold mb-2">
+                      <a href="{{ url_for('main.blog_post', slug=post.slug) }}" class="text-decoration-none text-dark">{{ post.title }}</a>
+                    </h3>
+                    <p class="card-text text-muted mb-3">{{ post.excerpt }}</p>
+                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                      <div class="d-flex align-items-center">
+                        <div class="bg-secondary rounded-circle me-2" style="width: 30px; height: 30px;"></div>
+                        <small class="text-muted">{{ post.author.username }}</small>
+                      </div>
+                      <small class="text-muted">{{ post.read_time }} min read</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          
+          <!-- Pagination -->
+          <nav aria-label="Blog pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">Previous</a>
+              </li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#">Next</a>
+              </li>
+            </ul>
+          </nav>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="bi bi-journal-x text-muted fs-1"></i>
+            <h3 class="mt-3">No Blog Posts Found</h3>
+            <p class="text-muted">Check back later for new blog posts.</p>
+          </div>
+        {% endif %}
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0 fw-bold">Popular Posts</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group list-group-flush">
+              {% set popular_posts = BlogPost.query.filter_by(published=True).order_by(BlogPost.views.desc()).limit(5).all() %}
+              {% for post in popular_posts %}
+                <a href="{{ url_for('main.blog_post', slug=post.slug) }}" class="list-group-item list-group-item-action">
+                  <div class="fw-bold small mb-1">{{ post.title }}</div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">{{ post.date_posted.strftime('%b %d, %Y') }}</small>
+                    <small class="text-muted">{{ post.views }} views</small>
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">Categories</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group list-group-flush">
+              <a href="{{ url_for('main.blog') }}?category=event-planning" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                Event Planning
+                <span class="badge bg-primary rounded-pill">{{ BlogPost.query.filter_by(category='event-planning', published=True).count() }}</span>
+              </a>
+              <a href="{{ url_for('main.blog') }}?category=ticketing" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                Ticketing
+                <span class="badge bg-primary rounded-pill">{{ BlogPost.query.filter_by(category='ticketing', published=True).count() }}</span>
+              </a>
+              <a href="{{ url_for('main.blog') }}?category=campus" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                Campus Events
+                <span class="badge bg-primary rounded-pill">{{ BlogPost.query.filter_by(category='campus', published=True).count() }}</span>
+              </a>
+              <a href="{{ url_for('main.blog') }}?category=culture" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                Nigerian Culture
+                <span class="badge bg-primary rounded-pill">{{ BlogPost.query.filter_by(category='culture', published=True).count() }}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">Subscribe to Newsletter</h5>
+          </div>
+          <div class="card-body">
+            <p class="small text-muted">Get the latest event planning tips and updates delivered to your inbox.</p>
+            <form>
+              <div class="mb-3">
+                <input type="email" class="form-control form-control-sm" placeholder="Your email address">
+              </div>
+              <button type="submit" class="btn btn-primary btn-sm w-100">Subscribe</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h3 class="fw-bold mb-2">Want to Contribute?</h3>
+        <p class="mb-0">Share your event planning expertise with our community.</p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+        <a href="#" class="btn btn-primary">
+          <i class="bi bi-pencil-square me-2"></i>Write for Us
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

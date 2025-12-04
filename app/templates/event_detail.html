@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.name }} - {{ event.date.strftime('%B %d, %Y') }} in {{ event.location }} - {{ site_name }}{% endblock %}
+{% block meta_description %}{{ event.description[:155] }}{% if event.description|length > 155 %}...{% endif %} Join us for {{ event.name }} on {{ event.date.strftime('%B %d, %Y') }} at {{ event.location }}. Get your tickets now!{% endblock %}
+{% block meta_keywords %}{{ event.name }}, {{ event.category }} event, nigeria events, ticket booking, {{ event.location.split(',')[0] }}{% endblock %}
+{% block og_title %}{{ event.name }} - {{ event.date.strftime('%B %d, %Y') }} in {{ event.location }} - {{ site_name }}{% endblock %}
+{% block og_description %}{{ event.description[:200] }}{% if event.description|length > 200 %}...{% endif %}{% endblock %}
+{% block og_type %}event{% endblock %}
+{% block twitter_title %}{{ event.name }} - {{ event.date.strftime('%B %d, %Y') }} in {{ event.location }} - {{ site_name }}{% endblock %}
+{% block twitter_description %}{{ event.description[:200] }}{% if event.description|length > 200 %}...{% endif %}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "{{ event.name }}",
+  "startDate": "{{ event.date.strftime('%Y-%m-%dT%H:%M') }}",
+  "endDate": "{{ event.date.strftime('%Y-%m-%dT%H:%M') }}",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "location": {
+    "@type": "Place",
+    "name": "{{ event.location }}",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{ event.location }}",
+      "addressLocality": "{{ event.location.split(',')[-1] if ',' in event.location else event.location }}",
+      "addressCountry": "NG"
+    }
+  },
+  "image": [
+    "{{ site_url }}{{ url_for('static', filename='images/event-placeholder.jpg') }}"
+  ],
+  "description": "{{ event.description }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ site_url }}{{ url_for('main.event_detail', event_id=event.id) }}",
+    "price": "{{ event.price }}",
+    "priceCurrency": "NGN",
+    "availability": "https://schema.org/InStock"
+  },
+  "performer": {
+    "@type": "Organization",
+    "name": "{{ event.organizer.username }}"
+  },
+  "organizer": {
+    "@type": "Organization",
+    "name": "{{ site_name }}",
+    "url": "{{ site_url }}"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Event Breadcrumb -->
+<section class="py-3 bg-light">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.events') }}" class="text-decoration-none">Events</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.events_by_category', category=event.category) }}" class="text-decoration-none">
+          {% if event.category == 'formal' %}Formal Events
+          {% elif event.category == 'campus' %}Campus Parties
+          {% elif event.category == 'street' %}Street Parties
+          {% elif event.category == 'concert' %}Concerts
+          {% elif event.category == 'festival' %}Festivals
+          {% else %}General Events
+          {% endif %}
+        </a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ event.name }}</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<!-- Event Header -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400&q=80" class="card-img-top" alt="{{ event.name }}">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="badge bg-primary fs-6">
+                {% if event.category == 'formal' %}Formal Event
+                {% elif event.category == 'campus' %}Campus Party
+                {% elif event.category == 'street' %}Street Party
+                {% elif event.category == 'concert' %}Concert
+                {% elif event.category == 'festival' %}Festival
+                {% else %}General Event
+                {% endif %}
+              </span>
+              <div class="text-end">
+                <span class="text-primary fw-bold fs-4">₦{{ "%.2f"|format(event.price) }}</span>
+                {% if event.price == 0 %}
+                  <span class="badge bg-success ms-2">FREE</span>
+                {% endif %}
+              </div>
+            </div>
+            <h1 class="card-title display-5 fw-bold mb-3">{{ event.name }}</h1>
+            <div class="d-flex flex-wrap gap-3 mb-4">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calendar-event text-primary fs-4 me-2"></i>
+                <div>
+                  <div class="small text-muted">Date & Time</div>
+                  <div class="fw-bold">{{ event.date.strftime('%A, %B %d, %Y at %I:%M %p') }}</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-geo-alt text-primary fs-4 me-2"></i>
+                <div>
+                  <div class="small text-muted">Location</div>
+                  <div class="fw-bold">{{ event.location }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <h4 class="fw-bold mb-3">Event Description</h4>
+              <div class="card-text lead">{{ event.description }}</div>
+            </div>
+            <div class="row g-4">
+              <div class="col-md-6">
+                <h5 class="fw-bold mb-3">Event Details</h5>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Organizer</span>
+                      <span class="fw-bold">{{ event.organizer.username }}</span>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Category</span>
+                      <span class="fw-bold">
+                        {% if event.category == 'formal' %}Formal Event
+                        {% elif event.category == 'campus' %}Campus Party
+                        {% elif event.category == 'street' %}Street Party
+                        {% elif event.category == 'concert' %}Concert
+                        {% elif event.category == 'festival' %}Festival
+                        {% else %}General Event
+                        {% endif %}
+                      </span>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Ticket Price</span>
+                      <span class="fw-bold">₦{{ "%.2f"|format(event.price) }}{% if event.price == 0 %} (FREE){% endif %}</span>
+                    </div>
+                  </li>
+                  {% if event.category == 'campus' %}
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Student Discount</span>
+                      <span class="fw-bold">{% if current_user.is_authenticated and current_user.is_student %}Available{% else %}Available for verified students{% endif %}</span>
+                    </div>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h5 class="fw-bold mb-3">Location</h5>
+                <div class="bg-light p-3 rounded mb-3">
+                  <i class="bi bi-geo-alt me-2"></i>{{ event.location }}
+                </div>
+                <div class="ratio ratio-16x9">
+                  <iframe src="https://maps.google.com/maps?q={{ event.location|urlencode }}&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" allowfullscreen></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h3 class="mb-0 fw-bold">Get Tickets</h3>
+          </div>
+          <div class="card-body">
+            <div class="text-center mb-4">
+              <span class="event-price display-6 fw-bold text-primary">₦{{ "%.2f"|format(event.price) }}</span>
+              {% if event.price == 0 %}
+                <p class="text-success fw-bold mb-0">FREE EVENT</p>
+              {% else %}
+                <p class="text-muted mb-0">per ticket</p>
+              {% endif %}
+            </div>
+            
+            {% if event.price > 0 %}
+            <div class="mb-4">
+              <label for="ticketQuantity" class="form-label fw-bold">Number of Tickets</label>
+              <select class="form-select form-select-lg" id="ticketQuantity">
+                <option value="1">1 Ticket - ₦{{ "%.2f"|format(event.price) }}</option>
+                <option value="2">2 Tickets - ₦{{ "%.2f"|format(event.price * 2) }}</option>
+                <option value="3">3 Tickets - ₦{{ "%.2f"|format(event.price * 3) }}</option>
+                <option value="4">4 Tickets - ₦{{ "%.2f"|format(event.price * 4) }}</option>
+                <option value="5">5 Tickets - ₦{{ "%.2f"|format(event.price * 5) }}</option>
+              </select>
+            </div>
+            
+            <div class="d-grid gap-3 mb-4">
+              <button class="btn btn-primary btn-lg" id="paystackBtn">
+                <i class="bi bi-credit-card me-2"></i>Pay with Paystack
+              </button>
+              <button class="btn btn-success btn-lg" id="flutterwaveBtn">
+                <i class="bi bi-bank me-2"></i>Pay with Flutterwave
+              </button>
+            </div>
+            {% else %}
+            <div class="d-grid mb-4">
+              <button class="btn btn-primary btn-lg" id="registerBtn">
+                <i class="bi bi-calendar-check me-2"></i>Register for Free
+              </button>
+            </div>
+            {% endif %}
+            
+            <div class="text-center mb-4">
+              <small class="text-muted">
+                <i class="bi bi-shield-lock me-1"></i>Secure payment processing with Paystack and Flutterwave
+              </small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header">
+            <h5 class="mb-0 fw-bold">Share Event</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-around mb-3">
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url|urlencode }}" target="_blank" class="btn btn-outline-primary">
+                <i class="bi bi-facebook"></i>
+              </a>
+              <a href="https://twitter.com/intent/tweet?url={{ request.url|urlencode }}&text=Check out this event: {{ event.name|urlencode }}" target="_blank" class="btn btn-outline-info">
+                <i class="bi bi-twitter"></i>
+              </a>
+              <a href="mailto:?subject=Check out this event: {{ event.name|urlencode }}&body=I thought you might be interested in this event: {{ request.url|urlencode }}" class="btn btn-outline-danger">
+                <i class="bi bi-envelope"></i>
+              </a>
+              <a href="https://wa.me/?text=Check out this event: {{ event.name|urlencode }} {{ request.url|urlencode }}" target="_blank" class="btn btn-outline-success">
+                <i class="bi bi-whatsapp"></i>
+              </a>
+            </div>
+            <div class="input-group">
+              <input type="text" class="form-control" value="{{ request.url }}" readonly>
+              <button class="btn btn-outline-primary" type="button" id="copyLinkBtn">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Related Events -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold">Related Events</h3>
+      <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary">View All Events</a>
+    </div>
+    <div class="row g-4">
+      {% set related_events = Event.query.filter(Event.category == event.category, Event.id != event.id).order_by(Event.date.desc()).limit(3).all() %}
+      {% if related_events %}
+        {% for related_event in related_events %}
+          <div class="col-md-4">
+            <div class="card event-card h-100 border-0 shadow-sm">
+              <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=200&q=80" class="card-img-top" alt="{{ related_event.name }}">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge bg-primary">{{ related_event.category.title() }}</span>
+                  <span class="text-primary fw-bold">₦{{ "%.2f"|format(related_event.price) }}</span>
+                </div>
+                <h5 class="card-title">{{ related_event.name }}</h5>
+                <p class="event-date"><i class="bi bi-calendar-event me-1"></i> {{ related_event.date.strftime('%b %d, %Y') }}</p>
+                <p class="event-location"><i class="bi bi-geo-alt me-1"></i> {{ related_event.location.split(',')[0] }}</p>
+                <p class="card-text text-muted small mb-3">{{ related_event.description[:100] }}{% if related_event.description|length > 100 %}...{% endif %}</p>
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('main.event_detail', event_id=related_event.id) }}" class="btn btn-sm btn-primary">Get Tickets</a>
+                    {% if current_user.is_authenticated and related_event.organizer_id == current_user.id %}
+                      <a href="#" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="text-center py-5">
+            <i class="bi bi-calendar-x text-muted fs-1"></i>
+            <h3 class="mt-3">No Related Events</h3>
+            <p class="text-muted">Check back later for similar events.</p>
+            <a href="{{ url_for('main.events') }}" class="btn btn-primary">Browse All Events</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+<script>
+// Update total when quantity changes
+document.getElementById('ticketQuantity').addEventListener('change', function() {
+  const quantity = parseInt(this.value);
+  const price = {{ event.price }};
+  const subtotal = (price * quantity).toFixed(2);
+  const processingFee = (price * quantity * 0.025).toFixed(2);
+  const total = (price * quantity * 1.025).toFixed(2);
+  
+  document.getElementById('quantityDisplay').textContent = quantity;
+  document.getElementById('subtotal').textContent = '₦' + subtotal;
+  document.getElementById('total').textContent = '₦' + total;
+  document.getElementById('totalAmount').textContent = '₦' + total;
+});
+
+// Copy link functionality
+document.getElementById('copyLinkBtn').addEventListener('click', function() {
+  const linkInput = this.previousElementSibling;
+  linkInput.select();
+  document.execCommand('copy');
+  
+  const originalText = this.textContent;
+  this.textContent = 'Copied!';
+  setTimeout(() => {
+    this.textContent = originalText;
+  }, 2000);
+});
+
+// Paystack Payment
+document.getElementById('paystackBtn').addEventListener('click', function() {
+  const quantity = document.getElementById('ticketQuantity').value;
+  const totalAmount = {{ event.price }} * quantity * 100; // Convert to kobo
+  
+  const handler = PaystackPop.setup({
+    key: '{{ config.PAYSTACK_PUBLIC_KEY }}',
+    email: '{{ current_user.email if current_user.email else "user@example.com" }}',
+    amount: totalAmount,
+    currency: "NGN",
+    ref: 'PT-' + Math.floor((Math.random() * 1000000000) + 1), // Generate unique reference
+    callback: function(response) {
+      // Verify payment
+      alert('Payment successful! Reference: ' + response.reference);
+      // In a real implementation, you would send this to your server for verification
+    },
+    onClose: function() {
+      alert('Payment window closed. Please try again.');
+    }
+  });
+  handler.openIframe();
+});
+
+// Flutterwave Payment
+document.getElementById('flutterwaveBtn').addEventListener('click', function() {
+  const quantity = document.getElementById('ticketQuantity').value;
+  const totalAmount = {{ event.price }} * quantity;
+  
+  FlutterwaveCheckout({
+    public_key: "{{ config.FLUTTERWAVE_PUBLIC_KEY }}",
+    tx_ref: "PT-" + Math.floor((Math.random() * 1000000000) + 1),
+    amount: totalAmount,
+    currency: "NGN",
+    country: "NG",
+    payment_options: "card,mobilemoney,ussd",
+    customer: {
+      email: "{{ current_user.email if current_user.email else 'user@example.com' }}",
+      phone_number: "{{ current_user.phone if current_user.phone else '' }}",
+      name: "{{ current_user.username }}",
+    },
+    callback: function (data) {
+      console.log(data);
+      if (data.status === 'successful') {
+        alert('Payment successful! Transaction ID: ' + data.transaction_id);
+        // In a real implementation, you would send this to your server for verification
+      } else {
+        alert('Payment failed. Please try again.');
+      }
+    },
+    onclose: function() {
+      alert('Payment window closed. Please try again.');
+    },
+    customizations: {
+      title: "PartyTicket Payment",
+      description: "Payment for {{ event.name }}",
+      logo: "https://i.imgur.com/9pJN4rW.png",
+    },
+  });
+});
+
+{% if event.price == 0 %}
+document.getElementById('registerBtn').addEventListener('click', function() {
+  alert('Thank you for registering for this free event!');
+  // In a real implementation, this would handle registration
+});
+{% endif %}
+</script>
+{% endblock %}

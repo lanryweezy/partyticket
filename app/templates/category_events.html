@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.title() }} Events in Nigeria - PartyTicket{% endblock %}
+{% block meta_description %}Browse all {{ category }} events happening across Nigeria. Find parties, concerts, festivals, and gatherings near you. Book tickets online with PartyTicket Nigeria.{% endblock %}
+{% block meta_keywords %}{{ category }} events nigeria, party tickets, concert tickets, event booking, ticketing platform, nigeria events, party planning, event management{% endblock %}
+{% block og_title %}{{ category.title() }} Events in Nigeria - PartyTicket{% endblock %}
+{% block og_description %}Browse all {{ category }} events happening across Nigeria. Find parties, concerts, festivals, and gatherings near you. Book tickets online with PartyTicket Nigeria.{% endblock %}
+{% block twitter_title %}{{ category.title() }} Events in Nigeria - PartyTicket{% endblock %}
+{% block twitter_description %}Browse all {{ category }} events happening across Nigeria. Find parties, concerts, festivals, and gatherings near you. Book tickets online with PartyTicket Nigeria.{% endblock %}
+
+{% block content %}
+<!-- Category Header -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.events') }}" class="text-decoration-none">Events</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ category.title() }} Events</li>
+      </ol>
+    </nav>
+    <div class="row">
+      <div class="col-lg-8">
+        <h1 class="display-5 fw-bold mb-3">
+          {% if category == 'formal' %}Formal Events
+          {% elif category == 'campus' %}Campus Parties
+          {% elif category == 'street' %}Street Parties
+          {% elif category == 'concert' %}Concerts
+          {% elif category == 'festival' %}Festivals
+          {% else %}{{ category.title() }} Events
+          {% endif %}
+        </h1>
+        <p class="lead text-muted">
+          {% if category == 'formal' %}Discover elegant weddings, corporate functions, and sophisticated gatherings happening across Nigeria.
+          {% elif category == 'campus' %}Find the hottest campus parties and student gatherings happening at universities across Nigeria.
+          {% elif category == 'street' %}Experience vibrant street parties and community festivals bringing Nigerians together.
+          {% elif category == 'concert' %}Attend amazing concerts featuring top Nigerian artists and international acts.
+          {% elif category == 'festival' %}Celebrate Nigeria's rich cultural heritage at traditional and modern festivals.
+          {% else %}Explore all {{ category }} events happening across Nigeria.
+          {% endif %}
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <a href="{{ url_for('main.create_event') }}" class="btn btn-primary btn-lg">
+          <i class="bi bi-calendar-plus me-2"></i>Create {{ category.title() }} Event
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search and Filters -->
+<section class="py-4 bg-white sticky-top shadow-sm">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <form method="GET" action="{{ url_for('main.search_events') }}">
+          <input type="hidden" name="category" value="{{ category }}">
+          <div class="input-group">
+            <input type="text" class="form-control" name="q" placeholder="Search {{ category }} events..." value="{{ request.args.get('q', '') }}">
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select">
+          <option>Any Date</option>
+          <option>Today</option>
+          <option>Tomorrow</option>
+          <option>This Week</option>
+          <option>This Weekend</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select">
+          <option>Sort by Date</option>
+          <option>Sort by Popularity</option>
+          <option>Sort by Price (Low to High)</option>
+          <option>Sort by Price (High to Low)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Category Events -->
+<section class="py-5">
+  <div class="container">
+    {% if events %}
+      <div class="row g-4">
+        {% for event in events %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card event-card h-100 border-0 shadow-sm">
+              <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=200&q=80" class="card-img-top" alt="{{ event.name }}">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge bg-primary">{{ event.category.title() }}</span>
+                  <span class="text-primary fw-bold">₦{{ "%.2f"|format(event.price) }}</span>
+                </div>
+                <h5 class="card-title">{{ event.name }}</h5>
+                <p class="event-date"><i class="bi bi-calendar-event me-1"></i> {{ event.date.strftime('%b %d, %Y') }}</p>
+                <p class="event-location"><i class="bi bi-geo-alt me-1"></i> {{ event.location.split(',')[0] }}</p>
+                <p class="card-text text-muted small flex-grow-1">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('main.event_detail', event_id=event.id) }}" class="btn btn-sm btn-primary">Get Tickets</a>
+                    {% if current_user.is_authenticated and event.organizer_id == current_user.id %}
+                      <a href="#" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Pagination -->
+      <nav aria-label="Events pagination" class="mt-5">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+    {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-calendar-x text-muted fs-1"></i>
+        <h3 class="mt-3">No {{ category.title() }} Events Found</h3>
+        <p class="text-muted">
+          {% if category == 'formal' %}There are currently no formal events listed. Check back later or create your own!
+          {% elif category == 'campus' %}There are currently no campus parties listed. Check back later or create your own!
+          {% elif category == 'street' %}There are currently no street parties listed. Check back later or create your own!
+          {% elif category == 'concert' %}There are currently no concerts listed. Check back later or create your own!
+          {% elif category == 'festival' %}There are currently no festivals listed. Check back later or create your own!
+          {% else %}There are currently no {{ category }} events listed. Check back later or create your own!
+          {% endif %}
+        </p>
+        <a href="{{ url_for('main.create_event') }}" class="btn btn-primary">Create Your First {{ category.title() }} Event</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Related Categories -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Explore Other Event Categories</h2>
+      <p class="text-muted">Discover more types of events happening across Nigeria</p>
+    </div>
+    <div class="row g-4">
+      {% set related_categories = ['formal', 'campus', 'street', 'concert', 'festival'] %}
+      {% for related_category in related_categories %}
+        {% if related_category != category %}
+          <div class="col-md-4 col-lg-2">
+            <a href="{{ url_for('main.events_by_category', category=related_category) }}" class="text-decoration-none">
+              <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                  <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                    {% if related_category == 'formal' %}<i class="bi bi-briefcase text-primary fs-3"></i>
+                    {% elif related_category == 'campus' %}<i class="bi bi-mortarboard text-primary fs-3"></i>
+                    {% elif related_category == 'street' %}<i class="bi bi-people text-primary fs-3"></i>
+                    {% elif related_category == 'concert' %}<i class="bi bi-music-note-beamed text-primary fs-3"></i>
+                    {% elif related_category == 'festival' %}<i class="bi bi-flower1 text-primary fs-3"></i>
+                    {% else %}<i class="bi bi-calendar-event text-primary fs-3"></i>
+                    {% endif %}
+                  </div>
+                  <h6 class="fw-bold mb-0">
+                    {% if related_category == 'formal' %}Formal Events
+                    {% elif related_category == 'campus' %}Campus Parties
+                    {% elif related_category == 'street' %}Street Parties
+                    {% elif related_category == 'concert' %}Concerts
+                    {% elif related_category == 'festival' %}Festivals
+                    {% else %}{{ related_category.title() }} Events
+                    {% endif %}
+                  </h6>
+                </div>
+              </div>
+            </a>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

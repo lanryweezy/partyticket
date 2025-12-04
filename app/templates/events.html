@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Events in Nigeria - PartyTicket{% endblock %}
+{% block meta_description %}Browse all events happening across Nigeria. Find parties, concerts, festivals, and gatherings near you. Book tickets online with PartyTicket Nigeria.{% endblock %}
+{% block meta_keywords %}events nigeria, party tickets, concert tickets, event booking, ticketing platform, nigeria events, party planning, event management{% endblock %}
+{% block og_title %}Events in Nigeria - PartyTicket{% endblock %}
+{% block og_description %}Browse all events happening across Nigeria. Find parties, concerts, festivals, and gatherings near you. Book tickets online with PartyTicket Nigeria.{% endblock %}
+{% block twitter_title %}Events in Nigeria - PartyTicket{% endblock %}
+{% block twitter_description %}Browse all events happening across Nigeria. Find parties, concerts, festivals, and gatherings near you. Book tickets online with PartyTicket Nigeria.{% endblock %}
+
+{% block content %}
+<!-- Events Header -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-5 fw-bold mb-3">Discover Amazing Events in Nigeria</h1>
+        <p class="lead text-muted">Find parties, concerts, festivals, and gatherings happening near you. Book tickets online with confidence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search and Filters -->
+<section class="py-4 bg-white sticky-top shadow-sm">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-5">
+        <form method="GET" action="{{ url_for('main.search_events') }}">
+          <div class="input-group">
+            <input type="text" class="form-control" name="q" placeholder="Search events by name, location, or description..." value="{{ request.args.get('q', '') }}">
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" onchange="location = this.value;">
+          <option value="{{ url_for('main.events') }}" {% if not request.args.get('category') or request.args.get('category') == 'all' %}selected{% endif %}>All Categories</option>
+          <option value="{{ url_for('main.events_by_category', category='formal') }}" {% if request.args.get('category') == 'formal' %}selected{% endif %}>Formal Events</option>
+          <option value="{{ url_for('main.events_by_category', category='campus') }}" {% if request.args.get('category') == 'campus' %}selected{% endif %}>Campus Parties</option>
+          <option value="{{ url_for('main.events_by_category', category='street') }}" {% if request.args.get('category') == 'street' %}selected{% endif %}>Street Parties</option>
+          <option value="{{ url_for('main.events_by_category', category='concert') }}" {% if request.args.get('category') == 'concert' %}selected{% endif %}>Concerts</option>
+          <option value="{{ url_for('main.events_by_category', category='festival') }}" {% if request.args.get('category') == 'festival' %}selected{% endif %}>Festivals</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select">
+          <option>Any Date</option>
+          <option>Today</option>
+          <option>Tomorrow</option>
+          <option>This Week</option>
+          <option>This Weekend</option>
+        </select>
+      </div>
+      <div class="col-md-2 text-end">
+        <a href="{{ url_for('main.create_event') }}" class="btn btn-primary w-100">
+          <i class="bi bi-plus-circle me-1"></i> Create Event
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Events by Category -->
+<section class="py-5">
+  <div class="container">
+    {% for category, events in events_by_category.items() %}
+      {% if events %}
+        <div class="mb-5">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0">
+              {% if category == 'formal' %}Formal Events
+              {% elif category == 'campus' %}Campus Parties
+              {% elif category == 'street' %}Street Parties
+              {% elif category == 'concert' %}Concerts
+              {% elif category == 'festival' %}Festivals
+              {% else %}General Events
+              {% endif %}
+            </h3>
+            <a href="{{ url_for('main.events_by_category', category=category) }}" class="btn btn-outline-primary btn-sm">View All</a>
+          </div>
+          
+          <div class="row g-4">
+            {% for event in events[:6] %}
+              <div class="col-md-6 col-lg-4">
+                <div class="card event-card h-100 border-0 shadow-sm">
+                  <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=200&q=80" class="card-img-top" alt="{{ event.name }}">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <span class="badge bg-primary">{{ event.category.title() }}</span>
+                      <span class="text-primary fw-bold">₦{{ "%.2f"|format(event.price) }}</span>
+                    </div>
+                    <h5 class="card-title">{{ event.name }}</h5>
+                    <p class="event-date"><i class="bi bi-calendar-event me-1"></i> {{ event.date.strftime('%b %d, %Y') }}</p>
+                    <p class="event-location"><i class="bi bi-geo-alt me-1"></i> {{ event.location.split(',')[0] }}</p>
+                    <p class="card-text text-muted small flex-grow-1">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('main.event_detail', event_id=event.id) }}" class="btn btn-sm btn-primary">Get Tickets</a>
+                        {% if current_user.is_authenticated and event.organizer_id == current_user.id %}
+                          <a href="#" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h3 class="fw-bold mb-2">Ready to Host Your Own Event?</h3>
+        <p class="mb-0">Create your event and start selling tickets in minutes with our easy-to-use platform.</p>
+      </div>
+      <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+        <a href="{{ url_for('main.create_event') }}" class="btn btn-primary btn-lg">
+          <i class="bi bi-calendar-plus me-2"></i>Create Event
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

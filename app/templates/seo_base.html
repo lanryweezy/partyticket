@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>{% block title %}PartyTicket Nigeria - Discover & Host Amazing Events{% endblock %}</title>
+    <meta name="title" content="{% block meta_title %}PartyTicket Nigeria - Discover & Host Amazing Events{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{{ site_description if site_description else 'Find and book tickets for parties, concerts, festivals, and gatherings across Nigeria. Create your own events and sell tickets online with our easy-to-use platform.' }}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{{ site_keywords if site_keywords else 'events nigeria, party tickets, concert tickets, event booking, ticketing platform, nigeria events, party planning, event management' }}{% endblock %}">
+    <meta name="author" content="{{ site_author if site_author else 'PartyTicket Nigeria Team' }}">
+    <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+    <meta name="generator" content="PartyTicket Nigeria v1.0">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ site_url if site_url else 'https://partyticket.ng' }}{{ request.url if request else '' }}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{{ self.meta_title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ site_url if site_url else 'https://partyticket.ng' }}{{ url_for('static', filename='images/logo.png') if url_for else '/static/images/logo.png' }}{% endblock %}">
+    <meta property="og:site_name" content="{{ site_name if site_name else 'PartyTicket Nigeria' }}">
+    <meta property="og:locale" content="en_NG">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+    <meta property="twitter:url" content="{% block twitter_url %}{{ self.og_url() }}{% endblock %}">
+    <meta property="twitter:title" content="{% block twitter_title %}{{ self.og_title() }}{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}{{ self.og_description() }}{% endblock %}">
+    <meta property="twitter:image" content="{% block twitter_image %}{{ self.og_image() }}{% endblock %}">
+    <meta property="twitter:site" content="@PartyTicketNG">
+    <meta property="twitter:creator" content="@PartyTicketNG">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{% block canonical_url %}{{ site_url if site_url else 'https://partyticket.ng' }}{{ request.url if request else '/' }}{% endblock %}">
+    
+    <!-- Favicon and Touch Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32x32.png') if url_for else '/static/images/favicon-32x32.png' }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16x16.png') if url_for else '/static/images/favicon-16x16.png' }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png') if url_for else '/static/images/apple-touch-icon.png' }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') if url_for else '/static/manifest.json' }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='images/safari-pinned-tab.svg') if url_for else '/static/images/safari-pinned-tab.svg' }}" color="#6f42c1">
+    
+    <!-- PWA Manifest -->
+    <meta name="theme-color" content="#6f42c1">
+    <meta name="msapplication-TileColor" content="#6f42c1">
+    <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') if url_for else '/static/browserconfig.xml' }}">
+    
+    <!-- Structured Data -->
+    {% block structured_data %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "{{ site_name if site_name else 'PartyTicket Nigeria' }}",
+      "url": "{{ site_url if site_url else 'https://partyticket.ng' }}",
+      "logo": "{{ site_url if site_url else 'https://partyticket.ng' }}{{ url_for('static', filename='images/logo.png') if url_for else '/static/images/logo.png' }}",
+      "sameAs": [
+        "https://www.facebook.com/PartyTicketNG",
+        "https://twitter.com/PartyTicketNG",
+        "https://www.instagram.com/PartyTicketNG",
+        "https://www.linkedin.com/company/partticket-ng"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+234-800-000-0000",
+        "contactType": "Customer Service",
+        "areaServed": "NG",
+        "availableLanguage": "en"
+      }
+    }
+    </script>
+    {% endblock %}
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') if url_for else '/static/css/style.css' }}">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') if url_for else '/static/css/style.css' }}" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//images.unsplash.com">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Skip to Content Link -->
+    <a class="sr-only sr-only-focusable" href="#main-content">Skip to main content</a>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('main.home') if url_for else '/' }}">
+                <i class="bi bi-ticket-perforated"></i> PartyTicket
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.home') if url_for else '/' }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.events') if url_for else '/events' }}">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.blog') if url_for else '/blog' }}">Blog</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Tools
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('main.dashboard') if url_for else '/dashboard' }}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.simple_dashboard') if url_for else '/simple-dashboard' }}">Simple Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.offline_verification') if url_for else '/offline-verification' }}">Offline Verification</a></li>
+                            {% if current_user.is_student %}
+                            <li><a class="dropdown-item" href="{{ url_for('main.student_verification') if url_for else '/student-verification' }}">Student Verification</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <form class="d-flex me-3" method="GET" action="{{ url_for('main.search_events') if url_for else '/search' }}">
+                    <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Search events..." aria-label="Search">
+                    <button class="btn btn-outline-light btn-sm" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i> {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('main.profile', user_id=current_user.id) if url_for else '/profile/' + current_user.id|string }}"><i class="bi bi-person me-2"></i>Profile</a></li>
+                                {% if current_user.is_student %}
+                                <li><a class="dropdown-item" href="{{ url_for('main.student_verification') if url_for else '/student-verification' }}"><i class="bi bi-mortarboard me-2"></i>Student Verification</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') if url_for else '/logout' }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light me-2" href="{{ url_for('auth.register') if url_for else '/register' }}">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-light" href="{{ url_for('auth.login') if url_for else '/login' }}">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-shrink-0">
+        <div class="container mt-4">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-auto py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="text-uppercase mb-4 fw-bold">PartyTicket Nigeria</h5>
+                    <p>Discover and host amazing events across Nigeria. From campus parties to street festivals, we make event planning and ticketing simple.</p>
+                    <div class="d-flex gap-3">
+                        <a href="https://www.facebook.com/PartyTicketNG" target="_blank" class="text-light text-decoration-none" aria-label="Facebook">
+                            <i class="bi bi-facebook fs-4"></i>
+                        </a>
+                        <a href="https://twitter.com/PartyTicketNG" target="_blank" class="text-light text-decoration-none" aria-label="Twitter">
+                            <i class="bi bi-twitter fs-4"></i>
+                        </a>
+                        <a href="https://www.instagram.com/PartyTicketNG" target="_blank" class="text-light text-decoration-none" aria-label="Instagram">
+                            <i class="bi bi-instagram fs-4"></i>
+                        </a>
+                        <a href="https://wa.me/?text=Check out PartyTicket Nigeria" target="_blank" class="text-light text-decoration-none" aria-label="WhatsApp">
+                            <i class="bi bi-whatsapp fs-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h5 class="text-uppercase mb-4 fw-bold">Events</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('main.events_by_category', category='formal') if url_for else '/events/category/formal' }}" class="text-light text-decoration-none">Formal Events</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.events_by_category', category='campus') if url_for else '/events/category/campus' }}" class="text-light text-decoration-none">Campus Parties</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.events_by_category', category='street') if url_for else '/events/category/street' }}" class="text-light text-decoration-none">Street Parties</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.events_by_category', category='concert') if url_for else '/events/category/concert' }}" class="text-light text-decoration-none">Concerts</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.events_by_category', category='festival') if url_for else '/events/category/festival' }}" class="text-light text-decoration-none">Festivals</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h5 class="text-uppercase mb-4 fw-bold">Resources</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('main.blog') if url_for else '/blog' }}" class="text-light text-decoration-none">Blog</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Event Planning Guide</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">FAQ</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-uppercase mb-4 fw-bold">Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Lagos, Nigeria</li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2"></i> support@partyticket.ng</li>
+                        <li class="mb-2"><i class="bi bi-telephone me-2"></i> +234 800 000 0000</li>
+                    </ul>
+                    <h5 class="text-uppercase mt-4 mb-3 fw-bold">Newsletter</h5>
+                    <form>
+                        <div class="input-group">
+                            <input type="email" class="form-control form-control-sm" placeholder="Your email" aria-label="Your email">
+                            <button class="btn btn-outline-light btn-sm" type="button">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2023 PartyTicket Nigeria. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-light text-decoration-none me-3">Terms of Service</a>
+                    <a href="#" class="text-light text-decoration-none">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTopBtn" aria-label="Scroll to top">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/script.js') if url_for else '/static/js/script.js' }}"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('{{ url_for('static', filename='js/service-worker.js') if url_for else '/static/js/service-worker.js' }}')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // Scroll to top button functionality
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+        
+        window.onscroll = function() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollToTopBtn.classList.add("show");
+            } else {
+                scrollToTopBtn.classList.remove("show");
+            }
+        };
+        
+        scrollToTopBtn.addEventListener("click", function() {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        });
+    </script>
+    
+    <!-- Google Analytics (Production Only) -->
+    {% if config.get('FLASK_ENV') == 'production' %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    {% endif %}
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

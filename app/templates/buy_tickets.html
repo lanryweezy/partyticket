@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Buy Tickets for {{ event.name }} - PartyTicket Nigeria{% endblock %}
+{% block meta_description %}Purchase tickets for {{ event.name }} happening on {{ event.date.strftime('%B %d, %Y') }} at {{ event.location }}. Secure online ticket booking with instant confirmation.{% endblock %}
+
+{% block content %}
+<!-- Ticket Purchase Header -->
+<section class="py-5 bg-primary bg-opacity-10">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.events') }}" class="text-decoration-none">Events</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.event_detail', event_id=event.id) }}" class="text-decoration-none">{{ event.name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Buy Tickets</li>
+      </ol>
+    </nav>
+    <div class="row">
+      <div class="col-lg-8">
+        <h1 class="display-5 fw-bold mb-3">Buy Tickets for {{ event.name }}</h1>
+        <p class="lead text-muted">{{ event.description[:150] }}{% if event.description|length > 150 %}...{% endif %}</p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="bg-white p-4 rounded shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="small text-muted">Ticket Price</div>
+              <div class="h4 fw-bold text-primary">₦{{ "%.2f"|format(event.price) }}</div>
+            </div>
+            <div>
+              <div class="small text-muted">Total</div>
+              <div class="h4 fw-bold text-primary" id="totalAmount">₦{{ "%.2f"|format(event.price) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ticket Purchase Form -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white">
+            <h3 class="fw-bold mb-0">Ticket Information</h3>
+          </div>
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('main.buy_tickets', event_id=event.id) }}">
+              <div class="mb-4">
+                <h5 class="fw-bold mb-3">Select Quantity</h5>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="quantity" class="form-label">Number of Tickets</label>
+                    <select class="form-select form-select-lg" id="quantity" name="quantity" required>
+                      <option value="1" selected>1 Ticket - ₦{{ "%.2f"|format(event.price) }}</option>
+                      <option value="2">2 Tickets - ₦{{ "%.2f"|format(event.price * 2) }}</option>
+                      <option value="3">3 Tickets - ₦{{ "%.2f"|format(event.price * 3) }}</option>
+                      <option value="4">4 Tickets - ₦{{ "%.2f"|format(event.price * 4) }}</option>
+                      <option value="5">5 Tickets - ₦{{ "%.2f"|format(event.price * 5) }}</option>
+                      <option value="6">6 Tickets - ₦{{ "%.2f"|format(event.price * 6) }}</option>
+                      <option value="7">7 Tickets - ₦{{ "%.2f"|format(event.price * 7) }}</option>
+                      <option value="8">8 Tickets - ₦{{ "%.2f"|format(event.price * 8) }}</option>
+                      <option value="9">9 Tickets - ₦{{ "%.2f"|format(event.price * 9) }}</option>
+                      <option value="10">10 Tickets - ₦{{ "%.2f"|format(event.price * 10) }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <h5 class="fw-bold mb-3">Attendee Information</h5>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control form-control-lg" id="fullName" name="full_name" value="{{ current_user.username }}" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control form-control-lg" id="email" name="email" value="{{ current_user.email if current_user.email else '' }}" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control form-control-lg" id="phone" name="phone" value="{{ current_user.phone if current_user.phone else '' }}" required>
+                  </div>
+                  {% if event.category == 'campus' and current_user.is_student %}
+                  <div class="col-md-6">
+                    <label for="studentId" class="form-label">Student ID</label>
+                    <input type="text" class="form-control form-control-lg" id="studentId" name="student_id" value="{{ current_user.student_id if current_user.student_id else '' }}">
+                    <div class="form-text">For student discount verification</div>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <h5 class="fw-bold mb-3">Special Requests</h5>
+                <div class="mb-3">
+                  <label for="specialRequests" class="form-label">Any special requests or accommodations needed?</label>
+                  <textarea class="form-control" id="specialRequests" name="special_requests" rows="3" placeholder="Dietary restrictions, accessibility needs, etc."></textarea>
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mt-5">
+                <a href="{{ url_for('main.event_detail', event_id=event.id) }}" class="btn btn-outline-secondary btn-lg">
+                  <i class="bi bi-arrow-left me-2"></i>Back to Event
+                </a>
+                <button type="submit" class="btn btn-primary btn-lg">
+                  Proceed to Payment<i class="bi bi-arrow-right ms-2"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0 fw-bold">Order Summary</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span>{{ event.name }}</span>
+                  <span>₦{{ "%.2f"|format(event.price) }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span>Quantity</span>
+                  <span id="quantityDisplay">1</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span>Subtotal</span>
+                  <span id="subtotal">₦{{ "%.2f"|format(event.price) }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span>Processing Fee</span>
+                  <span>₦{{ "%.2f"|format(event.price * 0.025) }}</span>
+                </div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between fw-bold">
+                  <span>Total</span>
+                  <span id="total">₦{{ "%.2f"|format(event.price * 1.025) }}</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header">
+            <h5 class="mb-0 fw-bold">Payment Security</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-shield-lock text-success fs-3 me-3"></i>
+              <div>
+                <h6 class="mb-0 fw-bold">Secure Payments</h6>
+                <p class="mb-0 small text-muted">Your payment information is encrypted and secure</p>
+              </div>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-credit-card text-primary fs-3 me-3"></i>
+              <div>
+                <h6 class="mb-0 fw-bold">Multiple Options</h6>
+                <p class="mb-0 small text-muted">Pay with Visa, Mastercard, Verve, or bank transfer</p>
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <i class="bi bi-receipt text-info fs-3 me-3"></i>
+              <div>
+                <h6 class="mb-0 fw-bold">Instant Confirmation</h6>
+                <p class="mb-0 small text-muted">Receive your tickets immediately after payment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Update total when quantity changes
+document.getElementById('quantity').addEventListener('change', function() {
+  const quantity = parseInt(this.value);
+  const price = {{ event.price }};
+  const subtotal = (price * quantity).toFixed(2);
+  const processingFee = (price * quantity * 0.025).toFixed(2);
+  const total = (price * quantity * 1.025).toFixed(2);
+  
+  document.getElementById('quantityDisplay').textContent = quantity;
+  document.getElementById('subtotal').textContent = '₦' + subtotal;
+  document.getElementById('total').textContent = '₦' + total;
+  document.getElementById('totalAmount').textContent = '₦' + total;
+});
+</script>
+{% endblock %}

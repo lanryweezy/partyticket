@@ -1,0 +1,43 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /profile/
+Disallow: /dashboard/
+Disallow: /create_event
+Disallow: /create_invitation
+Disallow: /offline-verification
+Disallow: /student-verification
+Disallow: /api/
+
+Sitemap: https://partyticket.ng/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: *
+Disallow: /*?
+Allow: /events$
+Allow: /events/
+Allow: /blog$
+Allow: /blog/
+
+# Media
+Allow: /static/images/
+Allow: /static/css/
+Allow: /static/js/
+
+# Prevent indexing of certain files
+Disallow: /*.pdf$
+Disallow: /*.doc$
+Disallow: /*.xls$
+Disallow: /*.ppt$
+
+# Rate limiting
+Crawl-delay: 1

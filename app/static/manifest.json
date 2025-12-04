@@ -1,0 +1,92 @@
+{
+  "name": "PartyTicket Nigeria",
+  "short_name": "PartyTicket",
+  "description": "Discover and host amazing events across Nigeria. Find parties, concerts, festivals, and gatherings near you.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#6f42c1",
+  "theme_color": "#6f42c1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/images/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/images/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/static/images/screenshot-mobile.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Events",
+      "short_name": "Events",
+      "description": "Browse all upcoming events",
+      "url": "/events",
+      "icons": [{ "src": "/static/images/events-shortcut.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Create Event",
+      "short_name": "Create",
+      "description": "Create your own event",
+      "url": "/create_event",
+      "icons": [{ "src": "/static/images/create-shortcut.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "My Dashboard",
+      "short_name": "Dashboard",
+      "description": "Access your dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/static/images/dashboard-shortcut.png", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["events", "social", "entertainment"],
+  "lang": "en-US",
+  "dir": "ltr"
+}

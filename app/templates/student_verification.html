@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Student Verification</h3>
+                </div>
+                <div class="card-body">
+                    {% if current_user.is_student %}
+                        {% if current_user.is_verified_student %}
+                            <div class="alert alert-success">
+                                <h5><i class="bi bi-check-circle-fill"></i> Verified Student</h5>
+                                <p>Your student status has been verified. You're eligible for student discounts on campus events.</p>
+                            </div>
+                        {% else %}
+                            <p>You've indicated you're a student. Verify your student status to unlock discounts on campus events.</p>
+                            <div class="mb-3">
+                                <label for="studentId" class="form-label">Student ID</label>
+                                <input type="text" class="form-control" id="studentId" value="{{ current_user.student_id if current_user.student_id else '' }}" readonly>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="verifyBtn">
+                                    <i class="bi bi-shield-check"></i> Verify Student Status
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <h5><i class="bi bi-info-circle"></i> Student Discount</h5>
+                            <p>To access student discounts on campus events, please update your profile to indicate you're a student.</p>
+                            <a href="{{ url_for('main.profile', user_id=current_user.id) }}" class="btn btn-primary">Update Profile</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('verifyBtn').addEventListener('click', function() {
+    // Show loading state
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...';
+    btn.disabled = true;
+    
+    // In a real implementation, this would send a request to verify the student
+    // For this demo, we'll simulate the verification
+    setTimeout(() => {
+        // Simulate API response
+        const isSuccess = Math.random() > 0.2; // 80% success rate for demo
+        
+        if (isSuccess) {
+            // Update UI to show verified status
+            document.querySelector('.card-body').innerHTML = `
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle-fill"></i> Verified Student</h5>
+                    <p>Your student status has been verified successfully. You're now eligible for student discounts on campus events.</p>
+                </div>
+            `;
+        } else {
+            // Show error
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('Verification failed. Please check your student ID and try again.');
+        }
+    }, 2000);
+});
+</script>
+{% endblock %}
