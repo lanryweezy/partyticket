@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from app import db, oauth
+from app import db, oauth, mail
 from app.models import User
 from app.forms import RegistrationForm, LoginForm
+from flask_mail import Message
 import secrets
+from datetime import datetime, timedelta
 
 auth = Blueprint('auth', __name__)
 
@@ -36,10 +38,29 @@ def register():
                 student_id=form.student_id.data if form.is_student.data else None
             )
             user.set_password(form.password.data)
+            
+            # Generate email verification token
+            verification_token = secrets.token_urlsafe(32)
+            user.email_verification_token = verification_token
+            user.email_verified = False
+            
             db.session.add(user)
             db.session.commit()
             
-            flash('Account created successfully! Please login.', 'success')
+            # Send verification email
+            try:
+                verify_url = url_for('auth.verify_email', token=verification_token, _external=True)
+                msg = Message(
+                    'Verify Your Email - PartyTicket Nigeria',
+                    recipients=[user.email],
+                    html=render_template('emails/verify_email.html', user=user, verify_url=verify_url)
+                )
+                mail.send(msg)
+                flash('Account created! Please check your email to verify your account.', 'success')
+            except Exception as e:
+                current_app.logger.error(f'Failed to send verification email: {str(e)}')
+                flash('Account created! Please login. (Email verification email could not be sent)', 'warning')
+            
             return redirect(url_for('auth.login'))
         except Exception as e:
             db.session.rollback()
@@ -202,3 +223,91 @@ def facebook_callback():
         current_app.logger.error(f'Facebook login error: {str(e)}')
         flash('An error occurred during Facebook login. Please try again.', 'danger')
         return redirect(url_for('auth.login'))
+
+@auth.route('/verify-email/<token>')
+def verify_email(token):
+    """Verify user email with token."""
+    user = User.query.filter_by(email_verification_token=token).first()
+    
+    if not user:
+        flash('Invalid or expired verification link.', 'danger')
+        return redirect(url_for('auth.login'))
+    
+    user.email_verified = True
+    user.email_verification_token = None
+    db.session.commit()
+    
+    flash('Email verified successfully! You can now login.', 'success')
+    return redirect(url_for('auth.login'))
+
+@auth.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Request password reset."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            # Generate reset token
+            reset_token = secrets.token_urlsafe(32)
+            user.password_reset_token = reset_token
+            user.password_reset_expires = datetime.utcnow() + timedelta(hours=1)
+            db.session.commit()
+            
+            # Send reset email
+            try:
+                reset_url = url_for('auth.reset_password', token=reset_token, _external=True)
+                msg = Message(
+                    'Reset Your Password - PartyTicket Nigeria',
+                    recipients=[user.email],
+                    html=render_template('emails/reset_password.html', user=user, reset_url=reset_url)
+                )
+                mail.send(msg)
+                flash('Password reset link has been sent to your email.', 'success')
+            except Exception as e:
+                current_app.logger.error(f'Failed to send reset email: {str(e)}')
+                flash('Error sending reset email. Please try again.', 'danger')
+        else:
+            # Don't reveal if email exists
+            flash('If that email exists, a password reset link has been sent.', 'success')
+        
+        return redirect(url_for('auth.login'))
+    
+    return render_template('forgot_password.html')
+
+@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Reset password with token."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+    
+    user = User.query.filter_by(password_reset_token=token).first()
+    
+    if not user or not user.password_reset_expires or user.password_reset_expires < datetime.utcnow():
+        flash('Invalid or expired reset link.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('reset_password.html', token=token)
+        
+        if len(password) < 6:
+            flash('Password must be at least 6 characters.', 'danger')
+            return render_template('reset_password.html', token=token)
+        
+        user.set_password(password)
+        user.password_reset_token = None
+        user.password_reset_expires = None
+        db.session.commit()
+        
+        flash('Password reset successfully! Please login.', 'success')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('reset_password.html', token=token)

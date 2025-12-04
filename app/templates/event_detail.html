@@ -343,60 +343,76 @@ document.getElementById('copyLinkBtn').addEventListener('click', function() {
 // Paystack Payment
 document.getElementById('paystackBtn').addEventListener('click', function() {
   const quantity = document.getElementById('ticketQuantity').value;
-  const totalAmount = {{ event.price }} * quantity * 100; // Convert to kobo
+  const btn = this;
+  const originalText = btn.innerHTML;
   
-  const handler = PaystackPop.setup({
-    key: '{{ config.PAYSTACK_PUBLIC_KEY }}',
-    email: '{{ current_user.email if current_user.email else "user@example.com" }}',
-    amount: totalAmount,
-    currency: "NGN",
-    ref: 'PT-' + Math.floor((Math.random() * 1000000000) + 1), // Generate unique reference
-    callback: function(response) {
-      // Verify payment
-      alert('Payment successful! Reference: ' + response.reference);
-      // In a real implementation, you would send this to your server for verification
+  // Show loading state
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+  
+  // Initialize payment via backend
+  fetch('/payment/paystack/initialize', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-    onClose: function() {
-      alert('Payment window closed. Please try again.');
+    body: JSON.stringify({
+      event_id: {{ event.id }},
+      quantity: parseInt(quantity),
+      email: '{{ current_user.email }}'
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.authorization_url) {
+      // Redirect to Paystack payment page
+      window.location.href = data.authorization_url;
+    } else {
+      throw new Error(data.error || 'Failed to initialize payment');
     }
+  })
+  .catch(error => {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+    alert('Error: ' + error.message);
   });
-  handler.openIframe();
 });
 
 // Flutterwave Payment
 document.getElementById('flutterwaveBtn').addEventListener('click', function() {
   const quantity = document.getElementById('ticketQuantity').value;
-  const totalAmount = {{ event.price }} * quantity;
+  const btn = this;
+  const originalText = btn.innerHTML;
   
-  FlutterwaveCheckout({
-    public_key: "{{ config.FLUTTERWAVE_PUBLIC_KEY }}",
-    tx_ref: "PT-" + Math.floor((Math.random() * 1000000000) + 1),
-    amount: totalAmount,
-    currency: "NGN",
-    country: "NG",
-    payment_options: "card,mobilemoney,ussd",
-    customer: {
-      email: "{{ current_user.email if current_user.email else 'user@example.com' }}",
-      phone_number: "{{ current_user.phone if current_user.phone else '' }}",
-      name: "{{ current_user.username }}",
+  // Show loading state
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+  
+  // Initialize payment via backend
+  fetch('/payment/flutterwave/initialize', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-    callback: function (data) {
-      console.log(data);
-      if (data.status === 'successful') {
-        alert('Payment successful! Transaction ID: ' + data.transaction_id);
-        // In a real implementation, you would send this to your server for verification
-      } else {
-        alert('Payment failed. Please try again.');
-      }
-    },
-    onclose: function() {
-      alert('Payment window closed. Please try again.');
-    },
-    customizations: {
-      title: "PartyTicket Payment",
-      description: "Payment for {{ event.name }}",
-      logo: "https://i.imgur.com/9pJN4rW.png",
-    },
+    body: JSON.stringify({
+      event_id: {{ event.id }},
+      quantity: parseInt(quantity),
+      email: '{{ current_user.email }}'
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.link) {
+      // Redirect to Flutterwave payment page
+      window.location.href = data.link;
+    } else {
+      throw new Error(data.error || 'Failed to initialize payment');
+    }
+  })
+  .catch(error => {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+    alert('Error: ' + error.message);
   });
 });
 

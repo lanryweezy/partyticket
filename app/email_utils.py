@@ -1,10 +1,12 @@
-from flask import current_app
+from flask import current_app, render_template, url_for
 from flask_mail import Message
 from app import mail, db
 from app.models import Ticket, Event, User
 import qrcode
 import base64
 from io import BytesIO
+from datetime import datetime
+from icalendar import Calendar, Event as ICalEvent
 
 
 def _ensure_ticket_qr(ticket: Ticket) -> None:
@@ -12,7 +14,7 @@ def _ensure_ticket_qr(ticket: Ticket) -> None:
     if ticket.qr_code:
         return
 
-    qr_data = f"ticket_id:{ticket.id}"
+    qr_data = f"ticket_id:{ticket.id}:event_id:{ticket.event_id}"
     qr_img = qrcode.make(qr_data)
     buffered = BytesIO()
     qr_img.save(buffered, format="PNG")
@@ -20,9 +22,22 @@ def _ensure_ticket_qr(ticket: Ticket) -> None:
     ticket.qr_code = qr_code_base64
 
 
+def _generate_calendar_link(event: Event) -> str:
+    """Generate Google Calendar link for event."""
+    start_time = event.date.strftime('%Y%m%dT%H%M%S')
+    end_time = (event.date.replace(hour=event.date.hour + 3)).strftime('%Y%m%dT%H%M%S')
+    title = event.name.replace(' ', '+')
+    location = event.location.replace(' ', '+')
+    details = event.description[:200].replace(' ', '+')
+    
+    return (f"https://calendar.google.com/calendar/render?"
+            f"action=TEMPLATE&text={title}&dates={start_time}/{end_time}"
+            f"&details={details}&location={location}")
+
+
 def send_ticket_confirmation_email(user: User, event: Event, tickets: list[Ticket]) -> None:
     """
-    Send a ticket confirmation email with QR codes to the buyer.
+    Send a beautiful HTML ticket confirmation email with QR codes to the buyer.
     This is a best-effort helper; it logs errors but does not raise.
     """
     if not user or not user.email:
@@ -34,44 +49,63 @@ def send_ticket_confirmation_email(user: User, event: Event, tickets: list[Ticke
             _ensure_ticket_qr(ticket)
         db.session.commit()
 
-        subject = f"Your ticket(s) for {event.name}"
+        # Generate calendar link
+        calendar_link = _generate_calendar_link(event)
+
+        subject = f"🎫 Your ticket(s) for {event.name} - PartyTicket Nigeria"
         msg = Message(
             subject=subject,
             recipients=[user.email],
         )
 
-        ticket_list_html = "".join(
-            f"<li>Ticket ID: {t.id}</li>"
-            for t in tickets
+        # Render beautiful HTML template
+        msg.html = render_template(
+            'emails/ticket_confirmation.html',
+            user=user,
+            event=event,
+            tickets=tickets,
+            calendar_link=calendar_link
         )
-
-        # Use QR code of the first ticket as primary visual
-        first_qr = tickets[0].qr_code if tickets and tickets[0].qr_code else None
-        qr_img_html = (
-            f'<p><img src="data:image/png;base64,{first_qr}" alt="Ticket QR Code" '
-            f'style="max-width:200px;height:auto;"/></p>'
-            if first_qr
-            else ""
-        )
-
-        msg.html = f"""
-        <p>Hi {user.username},</p>
-        <p>Thank you for your purchase on <strong>PartyTicket Nigeria</strong>.</p>
-        <p><strong>Event:</strong> {event.name}<br>
-           <strong>Date:</strong> {event.date.strftime('%A, %B %d, %Y at %I:%M %p')}<br>
-           <strong>Location:</strong> {event.location}</p>
-        <p><strong>Tickets:</strong></p>
-        <ul>
-            {ticket_list_html}
-        </ul>
-        {qr_img_html}
-        <p>Please present this QR code (or your Ticket ID) at the event entrance for verification.</p>
-        <p>If you did not make this purchase, please contact support immediately.</p>
-        <p>Best regards,<br>PartyTicket Nigeria</p>
-        """
 
         mail.send(msg)
+        current_app.logger.info(f"Ticket confirmation email sent to {user.email}")
     except Exception as e:
         current_app.logger.error(f"Failed to send ticket confirmation email: {e}")
+
+
+def send_organizer_notification(event: Event, tickets_sold: int, total_capacity: int = None) -> None:
+    """Send notification to organizer when tickets are selling well or sold out."""
+    organizer = event.organizer
+    if not organizer or not organizer.email:
+        return
+    
+    try:
+        percentage = (tickets_sold / total_capacity * 100) if total_capacity else 0
+        
+        if percentage >= 100:
+            subject = f"🎉 {event.name} is SOLD OUT!"
+            message = f"Congratulations! Your event '{event.name}' is completely sold out with {tickets_sold} tickets sold!"
+        elif percentage >= 80:
+            subject = f"🔥 {event.name} is Almost Sold Out!"
+            message = f"Great news! Your event '{event.name}' is {percentage:.0f}% sold out ({tickets_sold}/{total_capacity} tickets)."
+        else:
+            return  # Don't send for low sales
+        
+        msg = Message(
+            subject=subject,
+            recipients=[organizer.email],
+            html=f"""
+            <h2>{subject}</h2>
+            <p>{message}</p>
+            <p>Event: {event.name}</p>
+            <p>Date: {event.date.strftime('%A, %B %d, %Y at %I:%M %p')}</p>
+            <p>Location: {event.location}</p>
+            <p>Keep up the great work!</p>
+            <p>Best regards,<br>PartyTicket Nigeria</p>
+            """
+        )
+        mail.send(msg)
+    except Exception as e:
+        current_app.logger.error(f"Failed to send organizer notification: {e}")
 
 

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Ticket Confirmation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🎫 Ticket Confirmation</h1>
+                            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">PartyTicket Nigeria</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <p style="font-size: 16px; color: #333333; margin: 0 0 20px 0;">Hi <strong>{{ user.username }}</strong>,</p>
+                            <p style="font-size: 16px; color: #333333; margin: 0 0 30px 0;">Thank you for your purchase! Your ticket(s) for <strong>{{ event.name }}</strong> are confirmed.</p>
+                            
+                            <!-- Event Details Card -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                                <tr>
+                                    <td>
+                                        <h2 style="color: #667eea; margin: 0 0 20px 0; font-size: 24px;">{{ event.name }}</h2>
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <strong style="color: #666666;">📅 Date & Time:</strong><br>
+                                                    <span style="color: #333333;">{{ event.date.strftime('%A, %B %d, %Y at %I:%M %p') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <strong style="color: #666666;">📍 Location:</strong><br>
+                                                    <span style="color: #333333;">{{ event.location }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <strong style="color: #666666;">🎟️ Tickets:</strong><br>
+                                                    <span style="color: #333333;">{{ tickets|length }} ticket(s)</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- QR Code -->
+                            {% if tickets and tickets[0].qr_code %}
+                            <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center; margin-bottom: 30px;">
+                                <tr>
+                                    <td>
+                                        <p style="font-size: 14px; color: #666666; margin: 0 0 10px 0;">Present this QR code at the event:</p>
+                                        <img src="data:image/png;base64,{{ tickets[0].qr_code }}" alt="Ticket QR Code" style="max-width: 250px; height: auto; border: 2px solid #667eea; border-radius: 8px; padding: 10px; background-color: #ffffff;">
+                                    </td>
+                                </tr>
+                            </table>
+                            {% endif %}
+                            
+                            <!-- Ticket IDs -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+                                <tr>
+                                    <td>
+                                        <p style="font-size: 14px; color: #666666; margin: 0 0 10px 0;"><strong>Ticket ID(s):</strong></p>
+                                        <ul style="margin: 0; padding-left: 20px; color: #333333;">
+                                            {% for ticket in tickets %}
+                                            <li style="margin-bottom: 5px;">Ticket #{{ ticket.id }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Add to Calendar -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ calendar_link }}" style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">📅 Add to Calendar</a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Important Notice -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0; color: #856404; font-size: 14px;">
+                                            <strong>⚠️ Important:</strong> Please arrive at least 30 minutes before the event starts. Bring a valid ID and this email (or the QR code) for entry.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="font-size: 14px; color: #666666; margin: 20px 0 0 0;">If you have any questions, please contact us at support@partyticket.ng</p>
+                            <p style="font-size: 14px; color: #666666; margin: 10px 0 0 0;">Best regards,<br><strong>PartyTicket Nigeria Team</strong></p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="margin: 0; font-size: 12px; color: #999999;">
+                                © 2025 PartyTicket Nigeria. All rights reserved.<br>
+                                If you did not make this purchase, please contact support immediately.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+

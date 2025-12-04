@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from app import db
 from app.models import Event, Ticket, Invitation, BlogPost, User
-from app.email_utils import send_ticket_confirmation_email
+from app.email_utils import send_ticket_confirmation_email, send_organizer_notification
 from app.forms import EventForm, TicketForm, InvitationForm, BlogPostForm
 import qrcode
 import base64
@@ -86,42 +86,14 @@ def event_detail(event_id):
 @main.route('/event/<int:event_id>/buy-tickets', methods=['GET', 'POST'])
 @login_required
 def buy_tickets(event_id):
-    """Ticket purchase route."""
+    """Ticket purchase route - redirects to payment."""
     event = Event.query.get_or_404(event_id)
     form = TicketForm()
     
     if form.validate_on_submit():
         quantity = form.quantity.data
-        total_amount = event.price * quantity
-        
-        try:
-            # Create tickets
-            tickets = []
-            for _ in range(quantity):
-                ticket = Ticket(
-                    event_id=event.id,
-                    user_id=current_user.id,
-                    amount_paid=event.price
-                )
-                db.session.add(ticket)
-                tickets.append(ticket)
-            
-            # Update organizer earnings (platform fee is visual only for now)
-            organizer = User.query.get(event.organizer_id)
-            if organizer:
-                organizer.earnings += total_amount
-            
-            db.session.commit()
-
-            # Send confirmation email with QR codes
-            send_ticket_confirmation_email(current_user, event, tickets)
-        except Exception as e:
-            db.session.rollback()
-            flash('An error occurred while processing your purchase. Please try again.', 'danger')
-            current_app.logger.error(f'Error purchasing tickets: {str(e)}')
-            return render_template('buy_tickets.html', event=event, form=form)
-        
-        flash(f'Successfully purchased {quantity} ticket(s) for {event.name}! A confirmation email has been sent to {current_user.email}.', 'success')
+        # Payment will be handled by payment routes
+        # This route just collects ticket info and redirects
         return redirect(url_for('main.event_detail', event_id=event.id))
     
     return render_template('buy_tickets.html', event=event, form=form)
@@ -352,8 +324,75 @@ def offline_verification():
     return render_template('offline_verification.html')
 
 @main.route('/api/verify_ticket', methods=['POST'])
+@login_required
 def verify_ticket():
-    """API endpoint for ticket verification."""
+    """API endpoint for ticket verification with fraud protection."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'message': 'Invalid request data'}), 400
+        
+        ticket_id = data.get('ticket_id')
+        qr_data = data.get('qr_data')  # Optional QR code data
+        
+        if not ticket_id and not qr_data:
+            return jsonify({'success': False, 'message': 'Missing ticket ID or QR data'}), 400
+        
+        # Find ticket by ID or QR data
+        if ticket_id:
+            ticket = Ticket.query.get(ticket_id)
+        else:
+            # Parse QR data: "ticket_id:123:event_id:456"
+            parts = qr_data.split(':')
+            if len(parts) >= 2 and parts[0] == 'ticket_id':
+                ticket = Ticket.query.get(int(parts[1]))
+            else:
+                return jsonify({'success': False, 'message': 'Invalid QR code format'}), 400
+        
+        if not ticket:
+            return jsonify({'success': False, 'message': 'Ticket not found'}), 404
+        
+        # Fraud protection checks
+        if ticket.payment_status != 'success':
+            return jsonify({
+                'success': False, 
+                'message': 'Ticket payment not verified',
+                'payment_status': ticket.payment_status
+            }), 400
+        
+        if ticket.is_scanned or ticket.used_at:
+            return jsonify({
+                'success': False, 
+                'message': 'Ticket already used',
+                'used_at': ticket.used_at.isoformat() if ticket.used_at else None
+            }), 400
+        
+        # Verify event exists and is valid
+        event = Event.query.get(ticket.event_id)
+        if not event:
+            return jsonify({'success': False, 'message': 'Event not found'}), 404
+        
+        # Mark ticket as used
+        ticket.mark_used()
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Ticket verified successfully',
+            'ticket_id': ticket.id,
+            'event_name': event.name,
+            'user_name': ticket.user.username,
+            'verified_at': ticket.used_at.isoformat()
+        })
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'Ticket verification error: {str(e)}')
+        return jsonify({'success': False, 'message': 'An error occurred during verification'}), 500
+
+@main.route('/api/verify_invitation', methods=['POST'])
+@login_required
+def verify_invitation():
+    """API endpoint for invitation verification."""
     try:
         data = request.get_json()
         if not data:
@@ -368,6 +407,14 @@ def verify_ticket():
         if not invitation:
             return jsonify({'success': False, 'message': 'Invalid invitation'}), 404
         
+        # Check payment status
+        if invitation.payment_status != 'success' and invitation.amount_paid > 0:
+            return jsonify({
+                'success': False, 
+                'message': 'Invitation payment not verified',
+                'payment_status': invitation.payment_status
+            }), 400
+        
         # Check if attendee limit has been reached
         if invitation.attendee_count >= invitation.max_attendees:
             return jsonify({'success': False, 'message': 'Attendee limit reached'}), 400
@@ -378,12 +425,13 @@ def verify_ticket():
         
         return jsonify({
             'success': True, 
-            'message': 'Ticket verified successfully',
+            'message': 'Invitation verified successfully',
             'attendee_count': invitation.attendee_count,
             'max_attendees': invitation.max_attendees
         })
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f'Invitation verification error: {str(e)}')
         return jsonify({'success': False, 'message': 'An error occurred during verification'}), 500
 
 # SEO routes with enhanced functionality
